@@ -36,7 +36,7 @@ class Mesh {
     public:
         // vertex structure vector를 입력받고, primitiveType으로 그리려는 타입(삼각형, line, quad 등)으로 그림.
         static MeshUPtr Create(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, uint32_t primitiveType);
-        static MeshUPtr CreatePlane();
+        static MeshUPtr CreateBox();
 
         void SetMaterial(MaterialPtr material) { m_material = material; }
         MaterialPtr GetMaterial() const { return m_material; }

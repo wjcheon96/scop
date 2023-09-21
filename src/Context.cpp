@@ -73,7 +73,7 @@ void Context::MouseButton(int button, int action, double x, double y) {
 }
 
 void Context::Render() {
-        if (ImGui::Begin("ui window")) {
+    if (ImGui::Begin("ui window")) {
         if (ImGui::CollapsingHeader("light", ImGuiTreeNodeFlags_DefaultOpen)) {
             ImGui::DragFloat3("l.position", glm::value_ptr(m_light.position), 0.01f);
             ImGui::DragFloat3("l.direction", glm::value_ptr(m_light.direction), 0.01f);
@@ -135,8 +135,9 @@ void Context::Render() {
         m_simpleProgram->Use();
         m_simpleProgram->SetUniform("color", glm::vec4(m_light.ambient + m_light.diffuse, 1.0f));
         m_simpleProgram->SetUniform("transform", projection * view * lightModelTransform);
-        m_plane->Draw(m_program.get());
+        m_box->Draw(m_program.get());
     }
+
 }
 
 bool Context::Init() {
@@ -144,7 +145,7 @@ bool Context::Init() {
     glEnable(GL_DEPTH_TEST);
     glClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
     
-    m_plane = Mesh::CreatePlane();
+    m_box = Mesh::CreateBox();
 
     m_simpleProgram = Program::Create("./shader/simple.vs", "./shader/simple.fs");
     if (!m_simpleProgram)

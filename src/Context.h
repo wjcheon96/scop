@@ -71,12 +71,9 @@ class Context{
 
         glm::vec2 m_prevMousePos { glm::vec2(0.0f) };
 
-        MeshUPtr m_plane;
+        MeshUPtr m_box;
 
-
-        glm::vec4 m_clearColor { glm::vec4(0.1f, 0.2f, 0.3f, 0.0f) };
-
-
+        glm::vec4 m_clearColor { glm::vec4(0.1f, 0.1f, 0.1f, 0.0f) };
 };
 
 #endif
