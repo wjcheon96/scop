@@ -30,6 +30,7 @@ add_executable(${PROJECT_NAME}
     src/Context.cpp src/Context.h
     src/Image.cpp src/Image.h
     src/Mesh.cpp src/Mesh.h
+    src/Model.cpp src/Model.h
     src/Program.cpp src/Program.h
     src/Shader.cpp src/Shader.h
     src/Texture.cpp src/Texture.h

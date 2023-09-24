@@ -82,10 +82,9 @@ void Context::Render() {
             ImGui::ColorEdit3("l.ambient", glm::value_ptr(m_light.ambient));
             ImGui::ColorEdit3("l.diffuse", glm::value_ptr(m_light.diffuse));
             ImGui::ColorEdit3("l.specular", glm::value_ptr(m_light.specular));
+            ImGui::Checkbox("flash light", &m_flashLightMode);
             ImGui::Checkbox("l.blinn", &m_blinn);
         }
-
-        ImGui::Checkbox("animation", &m_animation);
 
         if (ImGui::ColorEdit4("clear color", glm::value_ptr(m_clearColor))) {
             glClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
@@ -102,29 +101,36 @@ void Context::Render() {
         }
     }
     ImGui::End();
-
+    // 실제 framebuffer를 clear함.
+    // depth초기화
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // depth test를 켜서, z 버퍼상 뒤에 있는 그림(1에 가까운쪽)을 안 그리게끔 한다.
+    glEnable(GL_DEPTH_TEST);
 
-    m_cameraFront =
-        glm::rotate(glm::mat4(1.0f), glm::radians(m_cameraYaw), glm::vec3(0.0f, 1.0f, 0.0f)) *
-        glm::rotate(glm::mat4(1.0f), glm::radians(m_cameraPitch), glm::vec3(1.0f, 0.0f, 0.0f)) *
-        glm::vec4(0.0f, 0.0f, -1.0f, 0.0f);
+    // m_cameraFront를 yaw/pitch에 따라 방향 결정.(0, 0, -1)방향을 x축, y축에 따라 회전시킨다.
+    m_cameraFront = glm::rotate(glm::mat4(1.0f), glm::radians(m_cameraYaw), glm::vec3(0.0f, 1.0f, 0.0f)) * glm::rotate(glm::mat4(1.0f),
+        glm::radians(m_cameraPitch), glm::vec3(1.0f, 0.0f, 0.0f)) * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f);
+    
+    // 손전등 효과를 주는 방법
+    // m_light.position = m_cameraPos;
+    // m_light.direction = m_cameraFront;
 
-    auto projection = glm::perspective(glm::radians(45.0f),
-        (float)m_width / (float)m_height, 0.01f, 150.0f);
+    auto cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+    auto cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+    auto cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+    // 카메라는 카메라 벡터에 대해 설정된 값에 따라서 보이는 위치를 잡아준다.
     auto view = glm::lookAt(
-        m_cameraPos,
-        m_cameraPos + m_cameraFront,
-        m_cameraUp);
+      m_cameraPos,
+      m_cameraPos + m_cameraFront,
+      m_cameraUp);
 
-    auto lightView = glm::lookAt(m_light.position,
-        m_light.position + m_light.direction, glm::vec3(0.0f, 1.0f, 0.0f));
-    auto lightProjection = glm::perspective(
-        glm::radians((m_light.cutoff[0] + m_light.cutoff[1]) * 2.0f), 1.0f, 1.0f, 20.0f);
+    // zNear, zFar 파라미터가 어느 지점까지 보이는지를 확인 가능하게 한다.
+    // // 종횡비 4:3, 세로화각 45도의 원근 투영
+    auto projection = glm::perspective(glm::radians(45.0f),(float)m_width / (float)m_height, 0.01f, 50.0f);
 
     glm::vec3 lightPos = m_light.position;
     glm::vec3 lightDir = m_light.direction;
-
     if (m_flashLightMode) {
         lightPos = m_cameraPos;
         lightDir = m_cameraFront;
@@ -138,14 +144,38 @@ void Context::Render() {
         m_box->Draw(m_program.get());
     }
 
+    m_program->Use();
+    m_program->SetUniform("viewPos", m_cameraPos);
+    m_program->SetUniform("light.position", lightPos);
+    m_program->SetUniform("light.direction", lightDir);
+    m_program->SetUniform("light.cutoff", glm::vec2(
+        cosf(glm::radians(m_light.cutoff[0])), cosf(glm::radians(m_light.cutoff[0] + m_light.cutoff[1]))));
+    m_program->SetUniform("light.attenuation", GetAttenuationCoeff(m_light.distance));
+    m_program->SetUniform("light.ambient", m_light.ambient);
+    m_program->SetUniform("light.diffuse", m_light.diffuse);
+    m_program->SetUniform("light.specular", m_light.specular);
+
+    m_program->SetUniform("material.diffuse", 0);
+    m_program->SetUniform("material.specular", 1);
+    m_program->SetUniform("material.shininess", m_material.shininess);
+    m_program->SetUniform("blinn", (m_blinn ? 1 : 0));
+
+
+    auto modelTransform = glm::mat4(1.0f);
+    auto transform = projection * view * modelTransform;
+    m_program->SetUniform("transform", transform);
+    m_program->SetUniform("modelTransform", modelTransform);
+    m_model->Draw(m_program.get());
+
 }
 
 bool Context::Init() {
     glEnable(GL_MULTISAMPLE);
     glEnable(GL_DEPTH_TEST);
     glClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
-    
+
     m_box = Mesh::CreateBox();
+    m_model = Model::Load("./resources/42.obj");
 
     m_simpleProgram = Program::Create("./shader/simple.vs", "./shader/simple.fs");
     if (!m_simpleProgram)

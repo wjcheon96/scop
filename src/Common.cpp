@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <string>
 
 std::optional<std::string> LoadTextFile(const std::string& filename) {
     std::ifstream fin(filename);
@@ -12,6 +13,32 @@ std::optional<std::string> LoadTextFile(const std::string& filename) {
     std::stringstream text;
     text << fin.rdbuf();
     return text.str();
+}
+
+std::vector<std::pair<std::string, std::vector<std::string>>> tokenize(std::istringstream& text) {
+    std::vector<std::string> lines;
+    std::string line;
+    int cnt;
+    while (std::getline(text, line)) {
+        lines.push_back(line);
+        cnt++;
+    }
+
+    std::vector<std::pair<std::string, std::vector<std::string>>> token;
+    for (const std::string& line : lines) {
+        std::istringstream lineStream(line);
+        std::string key, word;
+        std::vector<std::string> vertex;
+        // 남은 부분을 공백 단위로 분할하여 벡터에 추가
+        if (lineStream >> key && key[0] != '#') {
+            while (lineStream >> word) {
+                vertex.push_back(word);
+            }
+            token.push_back(std::make_pair(key, vertex));
+        }
+    }
+
+    return token;
 }
 
 glm::vec3 GetAttenuationCoeff(float distance) {

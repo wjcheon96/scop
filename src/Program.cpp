@@ -15,7 +15,6 @@ ProgramUPtr Program::Create(const std::string& vertShaderFilename, const std::st
     return std::move(Create({vs, fs}));
 }
 
-
 bool Program::Link(const std::vector<ShaderPtr>& shaders) {
     // glCreateShader() 와 마찬가지로 id를 하나 얻어서 초기화를 진행한다.
     m_program = glCreateProgram();

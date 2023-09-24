@@ -51,7 +51,8 @@ void OnMouseButton(GLFWwindow* window, int button, int action, int modifier) {
     context->MouseButton(button, action, x, y);
 }
 
-int main(int ac, char **av) {
+int main() {
+
     SPDLOG_INFO("Initialize glfw");
     if (!glfwInit()) {
         const char* description = NULL;

@@ -6,6 +6,7 @@
 #include "Program.h"
 #include "Texture.h"
 #include "Mesh.h"
+#include "Model.h"
 
 CLASS_PTR(Context)
 class Context{
@@ -18,6 +19,7 @@ class Context{
         void MouseButton(int button, int action, double x, double y);
         void MouseScroll(double yoffset);
         void DrawScene(const glm::mat4& view, const glm::mat4& projection, const Program* program);
+
     private:
         Context() {}
         bool Init();
@@ -72,6 +74,7 @@ class Context{
         glm::vec2 m_prevMousePos { glm::vec2(0.0f) };
 
         MeshUPtr m_box;
+        ModelUPtr m_model;
 
         glm::vec4 m_clearColor { glm::vec4(0.1f, 0.1f, 0.1f, 0.0f) };
 };
