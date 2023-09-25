@@ -41,10 +41,8 @@ class Context{
         int m_width { WINDOW_WIDTH };
         int m_height { WINDOW_HEIGHT };
         
-
         ProgramUPtr m_program;
         ProgramUPtr m_simpleProgram;
-
 
         // 빛 세팅
         struct Light {

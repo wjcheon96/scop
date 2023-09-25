@@ -1,4 +1,5 @@
 #include "Context.h"
+#include "Mesh.h"
 
 ContextUPtr Context::Create() {
     auto context = ContextUPtr(new Context());
@@ -159,6 +160,10 @@ void Context::Render() {
     m_program->SetUniform("material.specular", 1);
     m_program->SetUniform("material.shininess", m_material.shininess);
     m_program->SetUniform("blinn", (m_blinn ? 1 : 0));
+    // glActiveTexture(GL_TEXTURE0);
+    // m_material.diffuse->Bind();
+    // glActiveTexture(GL_TEXTURE1);
+    // m_material.specular->Bind();
 
 
     auto modelTransform = glm::mat4(1.0f);
@@ -170,7 +175,6 @@ void Context::Render() {
 }
 
 bool Context::Init() {
-    glEnable(GL_MULTISAMPLE);
     glEnable(GL_DEPTH_TEST);
     glClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
 
@@ -180,13 +184,23 @@ bool Context::Init() {
     m_simpleProgram = Program::Create("./shader/simple.vs", "./shader/simple.fs");
     if (!m_simpleProgram)
         return false;
+    SPDLOG_INFO("program id: {}", m_simpleProgram->Get());
 
     m_program = Program::Create("./shader/lighting.vs", "./shader/lighting.fs");
     if (!m_program)
         return false;
-
     SPDLOG_INFO("program id: {}", m_program->Get());
 
+    m_material.diffuse = Texture::CreateFromImage(
+    Image::CreateSingleColorImage(4, 4, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)).get());
+
+    m_material.specular = Texture::CreateFromImage(
+    Image::CreateSingleColorImage(4, 4, glm::vec4(0.5f, 0.5f, 0.5f, 1.0f)).get());
+
+
+    m_program->Use();
+	m_program->SetUniform("tex", 0);
+    m_program->SetUniform("tex2", 1);
 
     return true;    
 }
