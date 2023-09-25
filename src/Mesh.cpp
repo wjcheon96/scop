@@ -46,7 +46,10 @@ void Mesh::Draw(const Program* program) const {
     if (m_material) {
         m_material->SetToProgram(program);
     }
-    glDrawArrays(m_primitiveType, 0, m_count);
+    if (m_indexBuffer)
+        glDrawElements(m_primitiveType, m_indexBuffer->GetCount(), GL_UNSIGNED_INT, 0);
+    else 
+        glDrawArrays(m_primitiveType, 0, m_count);
 }
 
 
