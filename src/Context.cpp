@@ -171,7 +171,6 @@ void Context::Render() {
     m_program->SetUniform("transform", transform);
     m_program->SetUniform("modelTransform", modelTransform);
     m_model->Draw(m_program.get());
-
 }
 
 bool Context::Init() {
@@ -179,7 +178,7 @@ bool Context::Init() {
     glClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
 
     m_box = Mesh::CreateBox();
-    m_model = Model::Load("./resources/42.obj");
+    m_model = Model::Load("./resources/teapot2.obj");
 
     m_simpleProgram = Program::Create("./shader/simple.vs", "./shader/simple.fs");
     if (!m_simpleProgram)

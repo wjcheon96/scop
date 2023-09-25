@@ -32,12 +32,9 @@ private:
     glm::vec3 MakeNormal(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3);
 
 
-    void MakeCorner(std::string val, std::vector<glm::vec3> v, std::vector<glm::vec2> vt, std::vector<glm::vec3> vn);
-    void MakeCorner(std::string val, std::vector<glm::vec3> v, std::vector<glm::vec3> vn);
-    void MakeCorner(std::string val1, std::string val2, std::string val3, std::vector<glm::vec3> v, std::vector<glm::vec2> vt);
-    void MakeCorner(std::string val1, std::string val2, std::string val3, std::vector<glm::vec3> v);
+    void MakeCorner(std::string val1, std::string val2, std::string val3, std::vector<glm::vec3> v); 
 
-    void ReadFace(std::vector<std::string> value, std::vector<glm::vec3> v, std::vector<glm::vec2> vt, std::vector<glm::vec3> vn);
+    void ReadFace(std::vector<std::string> value, std::vector<glm::vec3> v);
 
     void MakeCorner(std::string val);
 
@@ -50,9 +47,9 @@ private:
     std::string name;
 
     std::vector<Vertex> vertices;
-    std::vector<vert1> verticesNoNormal;
     std::vector<uint32_t> indices;
     std::vector<glm::vec3> vertexNormal;
+    int count {0};
 };
 
 #endif
