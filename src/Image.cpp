@@ -25,21 +25,6 @@ bool Image::Allocate(int width, int height, int channelCount) {
     return m_data ? true : false;
 }
 
-// 체크 무늬 이미지 생성
-void Image::SetCheckImage(int gridX, int gridY) {
-    for (int j = 0; j < m_height; j++) {
-        for (int i = 0; i < m_width; i++) {
-            int pos = (j * m_width + i) * m_channelCount;
-            bool even = ((i / gridX) + (j / gridY)) % 2 == 0;
-            uint8_t value = even ? 255 : 0;
-            for (int k = 0; k < m_channelCount; k++)
-                m_data[pos + k] = value;
-            if (m_channelCount > 3)
-                m_data[3] = 255;
-        }
-    }
-}
-
 
 bool Image::LoadWithStb(const std::string& filepath) {
     // 보통의 이미지는 좌상단을 원점으로 하나, opengl에서는 좌하단을 원점으로 하기에, 이미지 로딩시 상하를 반전시켜 문제를 해결할 수 있다.

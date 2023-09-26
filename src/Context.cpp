@@ -1,5 +1,6 @@
 #include "Context.h"
 #include "Mesh.h"
+#include "glm/ext/matrix_transform.hpp"
 
 ContextUPtr Context::Create() {
     auto context = ContextUPtr(new Context());
@@ -75,6 +76,10 @@ void Context::MouseButton(int button, int action, double x, double y) {
 
 void Context::Render() {
     if (ImGui::Begin("ui window")) {
+        if (ImGui::ColorEdit4("clear color", glm::value_ptr(m_clearColor))) {
+            glClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
+        }
+        ImGui::Separator();
         if (ImGui::CollapsingHeader("light", ImGuiTreeNodeFlags_DefaultOpen)) {
             ImGui::DragFloat3("l.position", glm::value_ptr(m_light.position), 0.01f);
             ImGui::DragFloat3("l.direction", glm::value_ptr(m_light.direction), 0.01f);
@@ -86,10 +91,6 @@ void Context::Render() {
             ImGui::Checkbox("flash light", &m_flashLightMode);
             ImGui::Checkbox("l.blinn", &m_blinn);
         }
-
-        if (ImGui::ColorEdit4("clear color", glm::value_ptr(m_clearColor))) {
-            glClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
-        }
         ImGui::Separator();
         ImGui::DragFloat3("camera pos", glm::value_ptr(m_cameraPos), 0.01f);
         ImGui::DragFloat("camera yaw", &m_cameraYaw, 0.5f);
@@ -98,8 +99,13 @@ void Context::Render() {
         if (ImGui::Button("reset camera")) {
             m_cameraYaw = 0.0f;
             m_cameraPitch = 0.0f;
-            m_cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+            m_cameraPos = glm::vec3(0.0f, 0.0f, 0.0f);
         }
+
+        if (ImGui::CollapsingHeader("material", ImGuiTreeNodeFlags_DefaultOpen)) {
+            ImGui::DragFloat("m.shininess", &m_material.shininess, 1.0f, 1.0f, 256.0f);
+        }
+        ImGui::Checkbox("animation", &m_animation);
     }
     ImGui::End();
     // 실제 framebuffer를 clear함.
@@ -111,14 +117,6 @@ void Context::Render() {
     // m_cameraFront를 yaw/pitch에 따라 방향 결정.(0, 0, -1)방향을 x축, y축에 따라 회전시킨다.
     m_cameraFront = glm::rotate(glm::mat4(1.0f), glm::radians(m_cameraYaw), glm::vec3(0.0f, 1.0f, 0.0f)) * glm::rotate(glm::mat4(1.0f),
         glm::radians(m_cameraPitch), glm::vec3(1.0f, 0.0f, 0.0f)) * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f);
-    
-    // 손전등 효과를 주는 방법
-    // m_light.position = m_cameraPos;
-    // m_light.direction = m_cameraFront;
-
-    auto cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-    auto cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
-    auto cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
     // 카메라는 카메라 벡터에 대해 설정된 값에 따라서 보이는 위치를 잡아준다.
     auto view = glm::lookAt(
@@ -140,6 +138,7 @@ void Context::Render() {
             glm::scale(glm::mat4(1.0), glm::vec3(0.1f));
 
         m_simpleProgram->Use();
+        glm::vec4 tmp = glm::vec4(m_light.ambient + m_light.diffuse, 1.0f);
         m_simpleProgram->SetUniform("color", glm::vec4(m_light.ambient + m_light.diffuse, 1.0f));
         m_simpleProgram->SetUniform("transform", projection * view * lightModelTransform);
         m_box->Draw(m_program.get());
@@ -160,13 +159,17 @@ void Context::Render() {
     m_program->SetUniform("material.specular", 1);
     m_program->SetUniform("material.shininess", m_material.shininess);
     m_program->SetUniform("blinn", (m_blinn ? 1 : 0));
-    // glActiveTexture(GL_TEXTURE0);
-    // m_material.diffuse->Bind();
-    // glActiveTexture(GL_TEXTURE1);
-    // m_material.specular->Bind();
 
+    glm::vec3 modelPosition(0.0f, 0.0f, 0.0f);
+    glm::vec3 rotationAxis(0.0f, 1.0f, 0.0f);
 
-    auto modelTransform = glm::mat4(1.0f);
+    glm::mat4 modelTransform = glm::mat4(1.0f); // 초기 모델 변환 행렬
+
+    // 초기 위치로 이동 변환을 적용
+    modelTransform = glm::translate(modelTransform, modelPosition);
+
+    if (m_animation)
+        modelTransform = glm::rotate(modelTransform, glm::radians((float)glfwGetTime() * 120.0f + 20.0f), rotationAxis);
     auto transform = projection * view * modelTransform;
     m_program->SetUniform("transform", transform);
     m_program->SetUniform("modelTransform", modelTransform);
@@ -174,11 +177,13 @@ void Context::Render() {
 }
 
 bool Context::Init() {
-    glEnable(GL_DEPTH_TEST);
-    glClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
+    glClearColor(0.0f, 0.1f, 0.2f, 0.0f);
 
     m_box = Mesh::CreateBox();
-    m_model = Model::Load("./resources/teapot2.obj");
+
+    m_model = Model::Load("./resources/teapot.obj");
+    if (!m_model)
+        return false;
 
     m_simpleProgram = Program::Create("./shader/simple.vs", "./shader/simple.fs");
     if (!m_simpleProgram)
@@ -196,5 +201,5 @@ bool Context::Init() {
     m_material.specular = Texture::CreateFromImage(
     Image::CreateSingleColorImage(4, 4, glm::vec4(0.5f, 0.5f, 0.5f, 1.0f)).get());
 
-    return true;    
+    return true;
 }

@@ -16,8 +16,6 @@ public:
     int GetHeight() const { return m_height; }
     int GetChannelCount() const { return m_channelCount; }
 
-    void SetCheckImage(int gridX, int gridY);
-
 private:
     Image() {};
     bool LoadWithStb(const std::string& filepath);

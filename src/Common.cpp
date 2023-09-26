@@ -37,7 +37,6 @@ std::vector<std::pair<std::string, std::vector<std::string>>> tokenize(std::istr
             token.push_back(std::make_pair(key, vertex));
         }
     }
-
     return token;
 }
 

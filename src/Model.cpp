@@ -41,7 +41,6 @@ void Model::SetMaterial() {
         std::string key = mtl[i].first;
         std::vector<std::string> val = mtl[i].second;
         if (key == "Kd") {
-            std::cout << val[0] << " " << val[1] << " " << val[2] << std::endl;
             m_material->diffuse = Texture::CreateFromImage(Image::CreateSingleColorImage(4, 4,
                 glm::vec4(toFloat(val[0]), toFloat(val[1]), toFloat(val[2]), 1.0f)).get());
         }
