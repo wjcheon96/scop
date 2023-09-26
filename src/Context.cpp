@@ -196,10 +196,5 @@ bool Context::Init() {
     m_material.specular = Texture::CreateFromImage(
     Image::CreateSingleColorImage(4, 4, glm::vec4(0.5f, 0.5f, 0.5f, 1.0f)).get());
 
-
-    m_program->Use();
-	m_program->SetUniform("tex", 0);
-    m_program->SetUniform("tex2", 1);
-
     return true;    
 }

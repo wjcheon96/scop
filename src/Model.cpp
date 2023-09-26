@@ -17,6 +17,8 @@ bool Model::LoadMtl(const std::string& filename) {
         return false;
     }
 
+    int count = 0;
+
     std::istringstream iss(*result);
     mtl = tokenize(iss);
     return true;
@@ -50,36 +52,49 @@ void Model::SetMaterial() {
     }
 }
 
-glm::vec3 Model::MakeNormal(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3) {
-    glm::vec3 normal = glm::normalize(glm::cross(v2 - v1, v3 - v1));
-    return normal;
+// make vertex normal
+void Model::MakeNormal(uint32_t v1, uint32_t v2, uint32_t v3, std::vector<glm::vec3> v) {
+    glm::vec3 vn = glm::normalize(glm::cross(v[v2 - 1] - v[v1 - 1], v[v3 - 1] - v[v1 - 1]));    // face normal
+    normal[v1] = glm::normalize(vn + normal[v1]);
+    normal[v2] = glm::normalize(vn + normal[v2]);
+    normal[v3] = glm::normalize(vn + normal[v3]);
 }
 
-void Model::MakeCorner(std::string val1, std::string val2, std::string val3, std::vector<glm::vec3> v) {
-    glm::vec3 vn = MakeNormal(v[toInt(val1) - 1], v[toInt(val2) - 1], v[toInt(val3) - 1]);
+void Model::MakeCorner(uint32_t val1, uint32_t val2, uint32_t val3, std::vector<glm::vec3> v) {
     count += 9;
     Vertex vt;
 
-    vt.position = v[toInt(val1) - 1];
-    vt.normal = vn;
+    vt.position = v[val1 - 1];
+    vt.normal = normal[val1];
     vertices.push_back(vt);
-    vt.position = v[toInt(val2) - 1];
-    vt.normal = vn;
+    vt.position = v[val2 - 1];
+    vt.normal = normal[val2];
     vertices.push_back(vt);
-    vt.position = v[toInt(val3) - 1];
-    vt.normal = vn;
+    vt.position = v[val3 - 1];
+    vt.normal = normal[val3];
     vertices.push_back(vt);
 }
 
 void Model::ReadFace(std::vector<std::string> value, std::vector<glm::vec3> v) {
     int triangleCount = value.size() - 2;
     if (triangleCount == 2) {
-        MakeCorner(value[0], value[1], value[2], v);
-        MakeCorner(value[0], value[2], value[3], v);
+        MakeCorner(toInt(value[0]), toInt(value[1]), toInt(value[2]), v);
+        MakeCorner(toInt(value[0]), toInt(value[2]), toInt(value[3]), v);
     } else if (triangleCount == 1) {
-        MakeCorner(value[0], value[1], value[2], v);
+        MakeCorner(toInt(value[0]), toInt(value[1]), toInt(value[2]), v);
     }
 }
+
+void Model::FaceToNormal(std::vector<std::string> value, std::vector<glm::vec3> v) {
+    int triangleCount = value.size() - 2;
+    if (triangleCount == 2) {
+        MakeNormal(toInt(value[0]), toInt(value[1]), toInt(value[2]), v);
+        MakeNormal(toInt(value[0]), toInt(value[2]), toInt(value[3]), v);
+    } else if (triangleCount == 1) {
+        MakeNormal(toInt(value[0]), toInt(value[1]), toInt(value[2]), v);
+    }
+}
+
 
 bool Model::LoadObj(const std::string& filename) {
     auto result = LoadTextFile(filename);
@@ -87,9 +102,16 @@ bool Model::LoadObj(const std::string& filename) {
         return false;
     }
     std::vector<glm::vec3> v;
-
     std::istringstream iss(*result);
     obj = tokenize(iss);
+    int size = 0;
+    for (std::pair line : obj) {
+        if (line.first == "f") {
+            int triangleCount = line.second.size() - 2;
+            size += triangleCount;
+        }
+    }
+    normal.resize(size);
     for (int i = 0; i < obj.size(); i++) {
         std::string key = obj[i].first;
         std::vector<std::string> value = obj[i].second;
@@ -100,9 +122,16 @@ bool Model::LoadObj(const std::string& filename) {
         } else if (key == "v") {
             v.push_back(glm::vec3(toFloat(value[0]), toFloat(value[1]), toFloat(value[2])));
         } else if (key == "f") {
-            ReadFace(value, v);
+            FaceToNormal(obj[i].second, v);
+            // ReadFace(value, v);
         } else if (key == "usemtl" || key == "s") {
             continue ;
+        }
+    }
+
+    for (std::pair line : obj) {
+        if (line.first == "f") {
+            ReadFace(line.second, v);
         }
     }
 

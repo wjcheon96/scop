@@ -29,10 +29,10 @@ private:
     bool LoadObj(const std::string& filename);
     GLfloat toFloat(std::string token);
     uint32_t toInt(std::string token);
-    glm::vec3 MakeNormal(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3);
+    void MakeNormal(uint32_t v1, uint32_t v2, uint32_t v3, std::vector<glm::vec3> v);
+    void FaceToNormal(std::vector<std::string> value, std::vector<glm::vec3> v);
 
-
-    void MakeCorner(std::string val1, std::string val2, std::string val3, std::vector<glm::vec3> v); 
+    void MakeCorner(uint32_t val1, uint32_t val2, uint32_t val3, std::vector<glm::vec3> v); 
 
     void ReadFace(std::vector<std::string> value, std::vector<glm::vec3> v);
 
@@ -48,7 +48,8 @@ private:
 
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
-    std::vector<glm::vec3> vertexNormal;
+    std::vector<glm::vec3> normal;
+    std::vector<glm::vec3> position;
     int count {0};
 };
 
