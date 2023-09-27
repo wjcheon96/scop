@@ -2,7 +2,10 @@
 #include "Common.h"
 #include "Mesh.h"
 #include "VertexLayout.h"
+#include "glm/fwd.hpp"
+#include <utility>
 #include <vector>
+#include <iostream>
 
 ModelUPtr Model::Load(const std::string& filename) {
     auto model = ModelUPtr(new Model());
@@ -11,89 +14,149 @@ ModelUPtr Model::Load(const std::string& filename) {
     return std::move(model);
 }
 
+void Model::SetMinMax(glm::vec3 position) {
+    position.x > max.x ? max.x = position.x : max.x;
+    position.y > max.y ? max.y = position.y : max.y;
+    position.z > max.z ? max.z = position.z : max.z;
+
+    min.x > position.x ? min.x = position.x : min.x;
+    min.y > position.y ? min.y = position.y : min.y;
+    min.z > position.z ? min.z = position.z : min.z;
+}
+
 bool Model::LoadMtl(const std::string& filename) {
     auto result = LoadTextFile("./resources/" + filename);
     if (!result) {
         return false;
     }
 
-    int count = 0;
-
     std::istringstream iss(*result);
     mtl = tokenize(iss);
     return true;
 }
 
-void Model::SetMaterial() {
-    m_material = Material::Create();
+MaterialUPtr Model::SetMaterial() {
+    auto material = Material::Create();
     if (mtl.empty()) {
-            m_material->diffuse = Texture::CreateFromImage(
-                Image::CreateSingleColorImage(4, 4,
-                    glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)).get());
+        std::cout << "a" << std::endl;
+        auto image = Image::Load(fmt::format("./resources/chicken.jpg"));
+            if (!image)
+                return nullptr;
+        material->diffuse = Texture::CreateFromImage(image.get());
+        material->specular = Texture::CreateFromImage(image.get());
+            // material->diffuse = Texture::CreateFromImage(
+            //     Image::CreateSingleColorImage(4, 4,
+            //         glm::vec4(0.1f, 0.1f, 0.1f, 1.0f)).get());
 
-            m_material->specular = Texture::CreateFromImage(
-                Image::CreateSingleColorImage(4, 4,
-                    glm::vec4(0.5f, 0.5f, 0.5f, 1.0f)).get());
-        return ;
+            // material->specular = Texture::CreateFromImage(
+            //     Image::CreateSingleColorImage(4, 4,
+            //         glm::vec4(0.5f, 0.5f, 0.5f, 1.0f)).get());
+        return (std::move(material));
     }
 
     for (int i = 0; i < mtl.size(); i++) {
         std::string key = mtl[i].first;
         std::vector<std::string> val = mtl[i].second;
         if (key == "Kd") {
-            m_material->diffuse = Texture::CreateFromImage(Image::CreateSingleColorImage(4, 4,
+            material->diffuse = Texture::CreateFromImage(Image::CreateSingleColorImage(4, 4,
                 glm::vec4(toFloat(val[0]), toFloat(val[1]), toFloat(val[2]), 1.0f)).get());
         }
         else if (key == "Ks") {
-            m_material->specular = Texture::CreateFromImage(Image::CreateSingleColorImage(4, 4,
+            material->specular = Texture::CreateFromImage(Image::CreateSingleColorImage(4, 4,
                 glm::vec4(toFloat(val[0]), toFloat(val[1]), toFloat(val[2]), 1.0f)).get());
         }
     }
+    return (std::move(material));
 }
 
 // make vertex normal
-void Model::MakeNormal(uint32_t v1, uint32_t v2, uint32_t v3, std::vector<glm::vec3> v) {
-    glm::vec3 vn = glm::normalize(glm::cross(v[v2 - 1] - v[v1 - 1], v[v3 - 1] - v[v1 - 1]));    // face normal
-    normal[v1] = glm::normalize(vn + normal[v1]);
-    normal[v2] = glm::normalize(vn + normal[v2]);
-    normal[v3] = glm::normalize(vn + normal[v3]);
+void Model::MakeNormal(uint32_t v1, uint32_t v2, uint32_t v3) {
+    glm::vec3 normal = glm::normalize(glm::cross(v[v2 - 1] - v[v1 - 1], v[v3 - 1] - v[v1 - 1]));    // face normal
+    vn[v1] = glm::normalize(normal + vn[v1]);
+    vn[v2] = glm::normalize(normal + vn[v2]);
+    vn[v3] = glm::normalize(normal + vn[v3]);
 }
 
-void Model::MakeCorner(uint32_t val1, uint32_t val2, uint32_t val3, std::vector<glm::vec3> v) {
+void Model::MakeCorner(uint32_t val1, uint32_t val2, uint32_t val3, glm::vec3 center) {
     count += 9;
-    Vertex vt;
+    Vertex vert;
 
-    vt.position = v[val1 - 1];
-    vt.normal = normal[val1];
-    vertices.push_back(vt);
-    vt.position = v[val2 - 1];
-    vt.normal = normal[val2];
-    vertices.push_back(vt);
-    vt.position = v[val3 - 1];
-    vt.normal = normal[val3];
-    vertices.push_back(vt);
+    vert.position = v[val1 - 1] - center;
+    vert.normal = vn[val1];
+    vertices.push_back(vert);
+    vert.position = v[val2 - 1] - center;
+    vert.normal = vn[val2];
+    vertices.push_back(vert);
+    vert.position = v[val3 - 1] - center;
+    vert.normal = vn[val3];
+    vertices.push_back(vert);
 }
 
-void Model::ReadFace(std::vector<std::string> value, std::vector<glm::vec3> v) {
+void Model::ReadFace(std::vector<std::string> value, glm::vec3 center) {
     int triangleCount = value.size() - 2;
     if (triangleCount == 2) {
-        MakeCorner(toInt(value[0]), toInt(value[1]), toInt(value[2]), v);
-        MakeCorner(toInt(value[0]), toInt(value[2]), toInt(value[3]), v);
+        MakeCorner(toInt(value[0]), toInt(value[1]), toInt(value[2]), center);
+        MakeCorner(toInt(value[0]), toInt(value[2]), toInt(value[3]), center);
     } else if (triangleCount == 1) {
-        MakeCorner(toInt(value[0]), toInt(value[1]), toInt(value[2]), v);
+        MakeCorner(toInt(value[0]), toInt(value[1]), toInt(value[2]), center);
     }
 }
 
-void Model::FaceToNormal(std::vector<std::string> value, std::vector<glm::vec3> v) {
+void Model::FaceToNormal(std::vector<std::string> value) {
     int triangleCount = value.size() - 2;
     if (triangleCount == 2) {
-        MakeNormal(toInt(value[0]), toInt(value[1]), toInt(value[2]), v);
-        MakeNormal(toInt(value[0]), toInt(value[2]), toInt(value[3]), v);
+        MakeNormal(toInt(value[0]), toInt(value[1]), toInt(value[2]));
+        MakeNormal(toInt(value[0]), toInt(value[2]), toInt(value[3]));
     } else if (triangleCount == 1) {
-        MakeNormal(toInt(value[0]), toInt(value[1]), toInt(value[2]), v);
+        MakeNormal(toInt(value[0]), toInt(value[1]), toInt(value[2]));
     }
 }
 
+void Model::TokenizeObj(std::istringstream& text) {
+    std::vector<std::string> lines;
+    std::string line;
+    int cnt;
+    while (std::getline(text, line)) {
+        std::istringstream lineStream(line);
+        std::string key, word;
+        GLfloat coord;
+        glm::vec3 position, normal;
+        glm::vec2 texCoord;
+        if (lineStream >> key && key[0] != '#') {
+            if (key == "mtllib") {
+                if (lineStream >> word) {
+                    std::cout << word << std::endl;
+                    LoadMtl(word);
+                }
+            } else if (key == "v") {
+                if (lineStream >> position.x >> position.y >> position.z) {
+                    SetMinMax(position);
+                    v.push_back(position);
+                }
+            } else if (key == "vt") {
+                if (lineStream >> texCoord.x >> texCoord.y)
+                    vt.push_back(texCoord);
+            } else if (key == "vn") {
+                if (lineStream >> normal.x >> normal.y >> normal.z)
+                    vn.push_back(normal);
+            } else if (key == "f") {
+                if (v.empty()) {
+                    SPDLOG_ERROR("Obj file invalid error");
+                    exit(1);
+                } else {
+                    std::vector<std::string> face;
+                    while (lineStream >> word) {
+                        face.push_back(word);
+                    }
+                    f.push_back(face);
+                    faceSize += face.size() - 2;
+                }
+            } else {
+                continue ;
+            }
+        }
+    }
+}
 
 bool Model::LoadObj(const std::string& filename) {
     auto result = LoadTextFile(filename);
@@ -102,41 +165,28 @@ bool Model::LoadObj(const std::string& filename) {
     }
     std::vector<glm::vec3> v;
     std::istringstream iss(*result);
-    obj = tokenize(iss);
-    int size = 0;
-    for (std::pair line : obj) {
-        if (line.first == "f") {
-            int triangleCount = line.second.size() - 2;
-            size += triangleCount;
-        }
-    }
-    normal.resize(size);
-    for (int i = 0; i < obj.size(); i++) {
-        std::string key = obj[i].first;
-        std::vector<std::string> value = obj[i].second;
-        if (key == "mtllib") {
-            LoadMtl(value[0]);
-        } else if (key == "o") {
-            name = value[0];
-        } else if (key == "v") {
-            v.push_back(glm::vec3(toFloat(value[0]), toFloat(value[1]), toFloat(value[2])));
-        } else if (key == "f") {
-            FaceToNormal(obj[i].second, v);
-            // ReadFace(value, v);
-        } else if (key == "usemtl" || key == "s") {
-            continue ;
-        }
-    }
+    TokenizeObj(iss);
+    std::cout << mtl.empty() << std::endl;
+    vn.resize(faceSize);
 
-    for (std::pair line : obj) {
-        if (line.first == "f") {
-            ReadFace(line.second, v);
+    for (std::vector line : f) {
+        if (vt.empty() || vn.empty()) { // normal 만들고, texcoord는 비운 상태로 집어넣음
+            FaceToNormal(line);
+        } else if (vt.empty()) {        // 그냥 face 맞추기
+        } else if (vn.empty()) {        // normal 만들고, vt, vn 집어넣어주기
+            FaceToNormal(line);
         }
+    }
+    
+    glm::vec3 center = glm::vec3(((max.x + min.x) / 2), ((max.y + min.y) / 2), ((max.z + min.z) / 2));
+
+    for (std::vector line : f) {
+        ReadFace(line, center);
     }
 
     auto glMesh = Mesh::Create(vertices, count, GL_TRIANGLES);
-    SetMaterial();
-    glMesh->SetMaterial(m_material);
+    glMesh->SetMaterial(SetMaterial());
+    // glMesh->SetMaterial(m_material);
     m_meshes.push_back(std::move(glMesh));
     return true;
 }
@@ -145,6 +195,10 @@ void Model::Draw(const Program* program) const {
     for (auto& mesh: m_meshes) {
         mesh->Draw(program);
     }
+}
+
+void Model::SetVt(glm::vec2 texCoordinate) {
+    vt.push_back(texCoordinate);
 }
 
 GLfloat Model::toFloat(std::string token) {

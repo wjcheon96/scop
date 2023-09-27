@@ -120,14 +120,27 @@ void Context::Render() {
 
     // 카메라는 카메라 벡터에 대해 설정된 값에 따라서 보이는 위치를 잡아준다.
     auto view = glm::lookAt(
-      m_cameraPos,
-      m_cameraPos + m_cameraFront,
-      m_cameraUp);
+        m_cameraPos,
+        m_cameraPos + m_cameraFront,
+        m_cameraUp);
 
     // zNear, zFar 파라미터가 어느 지점까지 보이는지를 확인 가능하게 한다.
     // // 종횡비 4:3, 세로화각 45도의 원근 투영
     auto projection = glm::perspective(glm::radians(45.0f),(float)m_width / (float)m_height, 0.01f, 50.0f);
 
+    for (Vertex v : m_model->GetV()) {
+        // 정점의 월드 좌표를 뷰 공간 좌표로 변환
+        glm::vec4 cameraSpacePosition = view * glm::vec4(v.position, 1.0f);
+        // 뷰 공간 좌표를 클리핑 좌표로 변환
+        glm::vec4 clipSpacePosition = projection * cameraSpacePosition;
+        // 클리핑 좌표를 정규화 장치 좌표로 변환
+        glm::vec3 ndcPosition = glm::vec3(clipSpacePosition) / clipSpacePosition.w;
+        // 정규화 장치 좌표를 텍스처 좌표로 변환
+        // glm::vec2 textureCoordinate = 0.5f * glm::vec2(ndcPosition.x + 1.0f, 1.0f - (ndcPosition.y + 1.0f));
+        glm::vec2 textureCoordinate = 0.5f * glm::vec2(ndcPosition.x, -ndcPosition.y) + 0.5f;
+        // 변환된 텍스처 좌표를 저장
+        m_model->SetVt(textureCoordinate);
+    }
     glm::vec3 lightPos = m_light.position;
     glm::vec3 lightDir = m_light.direction;
     if (m_flashLightMode) {
@@ -181,7 +194,7 @@ bool Context::Init() {
 
     m_box = Mesh::CreateBox();
 
-    m_model = Model::Load("./resources/teapot.obj");
+    m_model = Model::Load("./resources/teapot2.obj");
     if (!m_model)
         return false;
 
