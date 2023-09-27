@@ -31,26 +31,27 @@ bool Model::LoadMtl(const std::string& filename) {
     }
 
     std::istringstream iss(*result);
-    mtl = tokenize(iss);
+    tokenize(iss);
+
+    // mtl = tokenize(iss);
     return true;
 }
 
 MaterialUPtr Model::SetMaterial() {
     auto material = Material::Create();
     if (mtl.empty()) {
-        std::cout << "a" << std::endl;
-        auto image = Image::Load(fmt::format("./resources/chicken.jpg"));
-            if (!image)
-                return nullptr;
+        auto image = Image::Load("./resources/slime.png");
+        if (!image)
+            return nullptr;
         material->diffuse = Texture::CreateFromImage(image.get());
         material->specular = Texture::CreateFromImage(image.get());
-            // material->diffuse = Texture::CreateFromImage(
-            //     Image::CreateSingleColorImage(4, 4,
-            //         glm::vec4(0.1f, 0.1f, 0.1f, 1.0f)).get());
+        // material->diffuse = Texture::CreateFromImage(
+        //     Image::CreateSingleColorImage(4, 4,
+        //         glm::vec4(0.5f, 0.1f, 0.1f, 1.0f)).get());
 
-            // material->specular = Texture::CreateFromImage(
-            //     Image::CreateSingleColorImage(4, 4,
-            //         glm::vec4(0.5f, 0.5f, 0.5f, 1.0f)).get());
+        // material->specular = Texture::CreateFromImage(
+        //     Image::CreateSingleColorImage(4, 4,
+        //         glm::vec4(0.5f, 0.1f, 0.1f, 1.0f)).get());
         return (std::move(material));
     }
 
@@ -78,16 +79,19 @@ void Model::MakeNormal(uint32_t v1, uint32_t v2, uint32_t v3) {
 }
 
 void Model::MakeCorner(uint32_t val1, uint32_t val2, uint32_t val3, glm::vec3 center) {
-    count += 9;
+    count += 6;
     Vertex vert;
 
     vert.position = v[val1 - 1] - center;
+    vert.texCoord = glm::vec2((vn[val1].x + 1.0f) / 2.0f, (vn[val1].y + 1.0f) / 2.0f);
     vert.normal = vn[val1];
     vertices.push_back(vert);
     vert.position = v[val2 - 1] - center;
+    vert.texCoord = glm::vec2((vn[val2].x + 1.0f) / 2.0f, (vn[val2].y + 1.0f) / 2.0f);
     vert.normal = vn[val2];
     vertices.push_back(vert);
     vert.position = v[val3 - 1] - center;
+    vert.texCoord = glm::vec2((vn[val3].x + 1.0f) / 2.0f, (vn[val3].y + 1.0f) / 2.0f);
     vert.normal = vn[val3];
     vertices.push_back(vert);
 }
@@ -125,7 +129,6 @@ void Model::TokenizeObj(std::istringstream& text) {
         if (lineStream >> key && key[0] != '#') {
             if (key == "mtllib") {
                 if (lineStream >> word) {
-                    std::cout << word << std::endl;
                     LoadMtl(word);
                 }
             } else if (key == "v") {
@@ -163,10 +166,8 @@ bool Model::LoadObj(const std::string& filename) {
     if (!result) {
         return false;
     }
-    std::vector<glm::vec3> v;
     std::istringstream iss(*result);
     TokenizeObj(iss);
-    std::cout << mtl.empty() << std::endl;
     vn.resize(faceSize);
 
     for (std::vector line : f) {
@@ -183,6 +184,10 @@ bool Model::LoadObj(const std::string& filename) {
     for (std::vector line : f) {
         ReadFace(line, center);
     }
+
+    // for (Vertex a : vertices) {
+    //     std::cout << a.texCoord.x << " " << a.texCoord.y << std::endl; 
+    // }
 
     auto glMesh = Mesh::Create(vertices, count, GL_TRIANGLES);
     glMesh->SetMaterial(SetMaterial());
