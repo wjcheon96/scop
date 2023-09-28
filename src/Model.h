@@ -12,9 +12,8 @@ class Model {
 public:
     static ModelUPtr Load(const std::string& filename);
 
-    void Draw(const Program* program) const;
+    void Draw(const Program* program, int idx) const;
     bool LoadMtl(const std::string& filename);
-    MaterialUPtr SetTexture();
 
 private:
     Model() {}
@@ -33,12 +32,12 @@ private:
 
     void MakeCorner(std::string val);
 
-    MaterialUPtr SetMaterial();
+    void SetMaterial();
 
     void SetMinMax(glm::vec3 position);
 
-    std::vector<MeshPtr> m_meshes;
-    MaterialPtr m_material;
+    MeshPtr m_mesh;
+    std::vector<MaterialPtr> m_materials;
     std::vector<std::pair<std::string, std::vector<std::string>>> mtl;
 
     std::vector<Vertex> vertices;

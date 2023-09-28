@@ -42,10 +42,10 @@ void Mesh::Init(const std::vector<Vertex>& vertices, const std::vector<uint32_t>
         sizeof(Vertex), offsetof(Vertex, texCoord));
 }
 
-void Mesh::Draw(const Program* program) const {
+void Mesh::Draw(const Program* program, int idx) const {
     m_vertexLayout->Bind();
-    if (m_material) {
-        m_material->SetToProgram(program);
+    if (m_materials[idx]) {
+        m_materials[idx]->SetToProgram(program);
     }
     if (m_indexBuffer)
         glDrawElements(m_primitiveType, m_indexBuffer->GetCount(), GL_UNSIGNED_INT, 0);

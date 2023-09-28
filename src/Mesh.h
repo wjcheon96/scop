@@ -38,15 +38,18 @@ class Mesh {
         static MeshUPtr Create(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, uint32_t primitiveType);
         static MeshUPtr CreateBox();
 
-        void SetMaterial(MaterialPtr material) { m_material = material; }
-        MaterialPtr GetMaterial() const { return m_material; }
+        void SetMaterial(std::vector<MaterialPtr> material) {
+            for (MaterialPtr mat : material)
+                m_materials.push_back(mat);
+        }
+        // MaterialPtr GetMaterial() const { return m_material; }
 
 
         const VertexLayout* GetVertexLayout() const { return m_vertexLayout.get(); }
         BufferPtr GetVertexBuffer() const { return m_vertexBuffer; }
         BufferPtr GetIndexBuffer() const { return m_indexBuffer; }
 
-        void Draw(const Program* program) const;
+        void Draw(const Program* program, int idx) const;
 
     private:
         Mesh() {}
@@ -58,7 +61,7 @@ class Mesh {
         VertexLayoutUPtr m_vertexLayout;
         BufferPtr m_vertexBuffer;
         BufferPtr m_indexBuffer;
-        MaterialPtr m_material;
+        std::vector<MaterialPtr> m_materials;
         int m_count;
 };
 

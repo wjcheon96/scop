@@ -31,33 +31,14 @@ bool Model::LoadMtl(const std::string& filename) {
     }
 
     std::istringstream iss(*result);
-    tokenize(iss);
+    // tokenize(iss);
 
-    // mtl = tokenize(iss);
+    mtl = tokenize(iss);
     return true;
 }
 
-MaterialUPtr Model::SetTexture() {
-    auto material = Material::Create();
-    ImageUPtr image;
-    image = Image::Load("./resources/slime.png");
-    if (!image)
-        return nullptr;
-    image = Image::Load("./resources/galaxy.jpeg");
-    if (!image)
-        return nullptr;
-    image = Image::Load("./resources/opengl.png");
-    if (!image)
-        return nullptr;
-    image = Image::Load("./resources/slime.png");
-    if (!image)
-        return nullptr;
-    material->diffuse = Texture::CreateFromImage(image.get());
-    material->specular = Texture::CreateFromImage(image.get());
-    return (std::move(material));
-}
 
-MaterialUPtr Model::SetMaterial() {
+void Model::SetMaterial() {
     auto material = Material::Create();
     if (mtl.empty()) {
         material->diffuse = Texture::CreateFromImage(
@@ -67,22 +48,47 @@ MaterialUPtr Model::SetMaterial() {
         material->specular = Texture::CreateFromImage(
             Image::CreateSingleColorImage(4, 4,
                 glm::vec4(0.5f, 0.1f, 0.1f, 1.0f)).get());
-        return (std::move(material));
     }
+    else {
+        for (int i = 0; i < mtl.size(); i++) {
+            std::string key = mtl[i].first;
+            std::vector<std::string> val = mtl[i].second;
+            if (key == "Kd") {
+                material->diffuse = Texture::CreateFromImage(Image::CreateSingleColorImage(4, 4,
+                    glm::vec4(toFloat(val[0]), toFloat(val[1]), toFloat(val[2]), 1.0f)).get());
+            }
+            else if (key == "Ks") {
+                material->specular = Texture::CreateFromImage(Image::CreateSingleColorImage(4, 4,
+                    glm::vec4(toFloat(val[0]), toFloat(val[1]), toFloat(val[2]), 1.0f)).get());
+            }
+        }
+    }
+    m_materials.push_back(std::move(material));
+    ImageUPtr image;
+    image = Image::Load("./resources/slime.png");
+    auto material1 = Material::Create();
+    material1->diffuse = Texture::CreateFromImage(image.get());
+    material1->specular = Texture::CreateFromImage(image.get());
+    m_materials.push_back(std::move(material1));
+    
+    auto material2 = Material::Create();
+    image = Image::Load("./resources/galaxy.jpeg");
+    material2->diffuse = Texture::CreateFromImage(image.get());
+    material2->specular = Texture::CreateFromImage(image.get());
+    m_materials.push_back(std::move(material2));
 
-    for (int i = 0; i < mtl.size(); i++) {
-        std::string key = mtl[i].first;
-        std::vector<std::string> val = mtl[i].second;
-        if (key == "Kd") {
-            material->diffuse = Texture::CreateFromImage(Image::CreateSingleColorImage(4, 4,
-                glm::vec4(toFloat(val[0]), toFloat(val[1]), toFloat(val[2]), 1.0f)).get());
-        }
-        else if (key == "Ks") {
-            material->specular = Texture::CreateFromImage(Image::CreateSingleColorImage(4, 4,
-                glm::vec4(toFloat(val[0]), toFloat(val[1]), toFloat(val[2]), 1.0f)).get());
-        }
-    }
-    return (std::move(material));
+    auto material3 = Material::Create();
+    image = Image::Load("./resources/opengl.png");
+    material3->diffuse = Texture::CreateFromImage(image.get());
+    material3->specular = Texture::CreateFromImage(image.get());
+    m_materials.push_back(std::move(material3));
+
+    auto material4 = Material::Create();
+    image = Image::Load("./resources/pinkbean.jpeg");
+    material4->diffuse = Texture::CreateFromImage(image.get());
+    material4->specular = Texture::CreateFromImage(image.get());
+    m_materials.push_back(std::move(material4));
+
 }
 
 // make vertex normal
@@ -190,14 +196,14 @@ bool Model::LoadObj(const std::string& filename) {
     }
 
     auto glMesh = Mesh::Create(vertices, count, GL_TRIANGLES);
-    glMesh->SetMaterial(SetMaterial());
-    m_meshes.push_back(std::move(glMesh));
+    SetMaterial();
+    glMesh->SetMaterial(m_materials);
+    m_mesh = std::move(glMesh);
     return true;
 }
 
-void Model::Draw(const Program* program) const {
-    for (auto& mesh: m_meshes)
-        mesh->Draw(program);
+void Model::Draw(const Program* program, int idx) const {
+    m_mesh->Draw(program, idx);
 }
 
 GLfloat Model::toFloat(std::string token) {
