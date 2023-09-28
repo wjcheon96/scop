@@ -181,7 +181,7 @@ bool Context::Init() {
 
     m_box = Mesh::CreateBox();
 
-    m_model = Model::Load("./resources/42.obj");
+    m_model = Model::Load("./resources/teapot2.obj");
     if (!m_model)
         return false;
 
@@ -194,12 +194,6 @@ bool Context::Init() {
     if (!m_program)
         return false;
     SPDLOG_INFO("program id: {}", m_program->Get());
-
-    m_material.diffuse = Texture::CreateFromImage(
-    Image::CreateSingleColorImage(4, 4, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)).get());
-
-    m_material.specular = Texture::CreateFromImage(
-    Image::CreateSingleColorImage(4, 4, glm::vec4(0.5f, 0.5f, 0.5f, 1.0f)).get());
 
     return true;
 }
