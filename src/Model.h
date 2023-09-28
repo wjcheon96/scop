@@ -6,53 +6,53 @@
 #include "Common.h"
 #include "Mesh.h"
 
-typedef struct vec3 {
-    GLfloat x;
-    GLfloat y;
-    GLfloat z;
-} vec3;
 
 CLASS_PTR(Model);
 class Model {
 public:
     static ModelUPtr Load(const std::string& filename);
 
-    int GetMeshCount() const { return (int)m_meshes.size(); }
-    MeshPtr GetMesh(int index) const { return m_meshes[index]; }
     void Draw(const Program* program) const;
     bool LoadMtl(const std::string& filename);
-    std::vector<std::pair<std::string, std::vector<std::string>>> GetMtl() const { return obj; }
-    std::vector<std::pair<std::string, std::vector<std::string>>> GetObj() const { return mtl; }
+    MaterialUPtr SetTexture();
 
 private:
     Model() {}
     bool LoadObj(const std::string& filename);
     GLfloat toFloat(std::string token);
     uint32_t toInt(std::string token);
-    glm::vec3 MakeNormal(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3);
+    
+    void TokenizeObj(std::istringstream& text);
+    void TokenizeMtl(std::istringstream& text);
+    void MakeNormal(uint32_t v1, uint32_t v2, uint32_t v3);
+    void FaceToNormal(std::vector<std::string> value);
 
+    void MakeCorner(uint32_t val1, uint32_t val2, uint32_t val3, glm::vec3 center); 
 
-    void MakeCorner(std::string val, std::vector<glm::vec3> v, std::vector<glm::vec2> vt, std::vector<glm::vec3> vn);
-    void MakeCorner(std::string val, std::vector<glm::vec3> v, std::vector<glm::vec3> vn);
-    void MakeCorner(std::string val1, std::string val2, std::string val3, std::vector<glm::vec3> v, std::vector<glm::vec2> vt);
-    void MakeCorner(std::string val1, std::string val2, std::string val3, std::vector<glm::vec3> v);
-
-    void ReadFace(std::vector<std::string> value, std::vector<glm::vec3> v, std::vector<glm::vec2> vt, std::vector<glm::vec3> vn);
+    void ReadFace(std::vector<std::string> value, glm::vec3 center);
 
     void MakeCorner(std::string val);
 
-    void SetMaterial();
+    MaterialUPtr SetMaterial();
+
+    void SetMinMax(glm::vec3 position);
 
     std::vector<MeshPtr> m_meshes;
     MaterialPtr m_material;
-    std::vector<std::pair<std::string, std::vector<std::string>>> obj;
     std::vector<std::pair<std::string, std::vector<std::string>>> mtl;
-    std::string name;
 
     std::vector<Vertex> vertices;
-    std::vector<vert1> verticesNoNormal;
-    std::vector<uint32_t> indices;
-    std::vector<glm::vec3> vertexNormal;
+
+    std::string MtlPath;
+    std::vector<glm::vec3> v;
+    std::vector<glm::vec2> vt;
+    std::vector<glm::vec3> vn;
+    std::vector<std::vector<std::string>> f;
+    glm::vec3 min {0};
+    glm::vec3 max {0};
+    int faceSize {0};
+
+    int count {0};
 };
 
 #endif

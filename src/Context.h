@@ -74,6 +74,8 @@ class Context{
         MeshUPtr m_box;
         ModelUPtr m_model;
 
+        int texNum { 1 };
+
         glm::vec4 m_clearColor { glm::vec4(0.1f, 0.1f, 0.1f, 0.0f) };
 };
 

@@ -13,11 +13,6 @@ struct Vertex {
     glm::vec2 texCoord;
 };
 
-struct vert1 {
-    glm::vec3 position;
-    glm::vec3 normal;
-};
-
 CLASS_PTR(Material);
 class Material {
     public:
@@ -39,6 +34,7 @@ CLASS_PTR(Mesh);
 class Mesh {
     public:
         // vertex structure vector를 입력받고, primitiveType으로 그리려는 타입(삼각형, line, quad 등)으로 그림.
+        static MeshUPtr Create(const std::vector<Vertex>& vertices, int count, uint32_t primitiveType);
         static MeshUPtr Create(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, uint32_t primitiveType);
         static MeshUPtr CreateBox();
 
@@ -54,6 +50,7 @@ class Mesh {
 
     private:
         Mesh() {}
+        void Init(const std::vector<Vertex>& vertices, int count, uint32_t primitiveType);
         void Init(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, uint32_t primitiveType);
 
         uint32_t m_primitiveType { GL_TRIANGLES };
@@ -62,6 +59,7 @@ class Mesh {
         BufferPtr m_vertexBuffer;
         BufferPtr m_indexBuffer;
         MaterialPtr m_material;
+        int m_count;
 };
 
 #endif

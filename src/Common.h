@@ -1,6 +1,7 @@
 #ifndef __COMMON_HPP__
 #define __COMMON_HPP__
 
+#include <iostream>
 #include <memory>
 #include <string>
 #include <optional>
@@ -13,7 +14,6 @@
 
 std::optional<std::string> LoadTextFile(const std::string& filename);
 glm::vec3 GetAttenuationCoeff(float distance);
-// std::map<std::string, std::vector<std::string>> tokenize(std::istringstream text);
 std::vector<std::pair<std::string, std::vector<std::string>>> tokenize(std::istringstream& text);
 
 #define CLASS_PTR(className) \

@@ -74,5 +74,4 @@ void Texture::SetTextureFromImage(const Image* image) {
 
     // 바인딩한 GL_TEXTURE_2D를 Mipmap의 형태로 만들어준다.
     glGenerateMipmap(GL_TEXTURE_2D);
-
 }

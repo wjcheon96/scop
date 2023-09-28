@@ -1,9 +1,27 @@
 #include "Mesh.h"
+#include <iostream>
+
+MeshUPtr Mesh::Create(const std::vector<Vertex>& vertices, int count, uint32_t primitiveType) {
+    auto mesh = MeshUPtr(new Mesh());
+    mesh->Init(vertices, count, primitiveType);
+    return std::move(mesh);
+}
 
 MeshUPtr Mesh::Create(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, uint32_t primitiveType) {
     auto mesh = MeshUPtr(new Mesh());
     mesh->Init(vertices, indices, primitiveType);
     return std::move(mesh);
+}
+
+void Mesh::Init(const std::vector<Vertex>& vertices, int count, uint32_t primitiveType) {
+    m_count = count;
+    m_vertexLayout = VertexLayout::Create();
+    m_vertexBuffer = Buffer::CreateWithData(GL_ARRAY_BUFFER, GL_STATIC_DRAW,
+        vertices.data(), sizeof(Vertex), vertices.size());
+
+    m_vertexLayout->SetAttrib(0, 3, GL_FLOAT, false, sizeof(Vertex), 0);
+    m_vertexLayout->SetAttrib(1, 3, GL_FLOAT, false, sizeof(Vertex), offsetof(Vertex, normal));
+    m_vertexLayout->SetAttrib(2, 2, GL_FLOAT, false, sizeof(Vertex), offsetof(Vertex, texCoord));
 }
 
 void Mesh::Init(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, uint32_t primitiveType) {
@@ -29,7 +47,10 @@ void Mesh::Draw(const Program* program) const {
     if (m_material) {
         m_material->SetToProgram(program);
     }
-    glDrawElements(m_primitiveType, m_indexBuffer->GetCount(), GL_UNSIGNED_INT, 0);
+    if (m_indexBuffer)
+        glDrawElements(m_primitiveType, m_indexBuffer->GetCount(), GL_UNSIGNED_INT, 0);
+    else
+        glDrawArrays(m_primitiveType, 0, m_count);
 }
 
 
