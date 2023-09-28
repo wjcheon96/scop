@@ -12,14 +12,10 @@ class Model {
 public:
     static ModelUPtr Load(const std::string& filename);
 
-    int GetMeshCount() const { return (int)m_meshes.size(); }
-    MeshPtr GetMesh(int index) const { return m_meshes[index]; }
     void Draw(const Program* program) const;
     bool LoadMtl(const std::string& filename);
-    std::vector<std::pair<std::string, std::vector<std::string>>> GetMtl() const { return obj; }
-    std::vector<std::pair<std::string, std::vector<std::string>>> GetObj() const { return mtl; }
-    void SetVt(glm::vec2 texCoordinate);
-    std::vector<Vertex> GetV() const { return vertices; }
+    MaterialUPtr SetTexture();
+
 private:
     Model() {}
     bool LoadObj(const std::string& filename);
@@ -43,13 +39,9 @@ private:
 
     std::vector<MeshPtr> m_meshes;
     MaterialPtr m_material;
-    std::vector<std::pair<std::string, std::vector<std::string>>> obj;
     std::vector<std::pair<std::string, std::vector<std::string>>> mtl;
-    std::string name;
 
     std::vector<Vertex> vertices;
-    // std::vector<glm::vec3> normal;
-    std::vector<glm::vec3> position;
 
     std::string MtlPath;
     std::vector<glm::vec3> v;

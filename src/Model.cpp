@@ -37,21 +37,36 @@ bool Model::LoadMtl(const std::string& filename) {
     return true;
 }
 
+MaterialUPtr Model::SetTexture() {
+    auto material = Material::Create();
+    ImageUPtr image;
+    image = Image::Load("./resources/slime.png");
+    if (!image)
+        return nullptr;
+    image = Image::Load("./resources/galaxy.jpeg");
+    if (!image)
+        return nullptr;
+    image = Image::Load("./resources/opengl.png");
+    if (!image)
+        return nullptr;
+    image = Image::Load("./resources/slime.png");
+    if (!image)
+        return nullptr;
+    material->diffuse = Texture::CreateFromImage(image.get());
+    material->specular = Texture::CreateFromImage(image.get());
+    return (std::move(material));
+}
+
 MaterialUPtr Model::SetMaterial() {
     auto material = Material::Create();
     if (mtl.empty()) {
-        auto image = Image::Load("./resources/slime.png");
-        if (!image)
-            return nullptr;
-        material->diffuse = Texture::CreateFromImage(image.get());
-        material->specular = Texture::CreateFromImage(image.get());
-        // material->diffuse = Texture::CreateFromImage(
-        //     Image::CreateSingleColorImage(4, 4,
-        //         glm::vec4(0.5f, 0.1f, 0.1f, 1.0f)).get());
+        material->diffuse = Texture::CreateFromImage(
+            Image::CreateSingleColorImage(4, 4,
+                glm::vec4(0.5f, 0.1f, 0.1f, 1.0f)).get());
 
-        // material->specular = Texture::CreateFromImage(
-        //     Image::CreateSingleColorImage(4, 4,
-        //         glm::vec4(0.5f, 0.1f, 0.1f, 1.0f)).get());
+        material->specular = Texture::CreateFromImage(
+            Image::CreateSingleColorImage(4, 4,
+                glm::vec4(0.5f, 0.1f, 0.1f, 1.0f)).get());
         return (std::move(material));
     }
 
@@ -136,12 +151,6 @@ void Model::TokenizeObj(std::istringstream& text) {
                     SetMinMax(position);
                     v.push_back(position);
                 }
-            } else if (key == "vt") {
-                if (lineStream >> texCoord.x >> texCoord.y)
-                    vt.push_back(texCoord);
-            } else if (key == "vn") {
-                if (lineStream >> normal.x >> normal.y >> normal.z)
-                    vn.push_back(normal);
             } else if (key == "f") {
                 if (v.empty()) {
                     SPDLOG_ERROR("Obj file invalid error");
@@ -171,12 +180,7 @@ bool Model::LoadObj(const std::string& filename) {
     vn.resize(faceSize);
 
     for (std::vector line : f) {
-        if (vt.empty() || vn.empty()) { // normal 만들고, texcoord는 비운 상태로 집어넣음
-            FaceToNormal(line);
-        } else if (vt.empty()) {        // 그냥 face 맞추기
-        } else if (vn.empty()) {        // normal 만들고, vt, vn 집어넣어주기
-            FaceToNormal(line);
-        }
+        FaceToNormal(line);
     }
     
     glm::vec3 center = glm::vec3(((max.x + min.x) / 2), ((max.y + min.y) / 2), ((max.z + min.z) / 2));
@@ -185,25 +189,15 @@ bool Model::LoadObj(const std::string& filename) {
         ReadFace(line, center);
     }
 
-    // for (Vertex a : vertices) {
-    //     std::cout << a.texCoord.x << " " << a.texCoord.y << std::endl; 
-    // }
-
     auto glMesh = Mesh::Create(vertices, count, GL_TRIANGLES);
     glMesh->SetMaterial(SetMaterial());
-    // glMesh->SetMaterial(m_material);
     m_meshes.push_back(std::move(glMesh));
     return true;
 }
 
 void Model::Draw(const Program* program) const {
-    for (auto& mesh: m_meshes) {
+    for (auto& mesh: m_meshes)
         mesh->Draw(program);
-    }
-}
-
-void Model::SetVt(glm::vec2 texCoordinate) {
-    vt.push_back(texCoordinate);
 }
 
 GLfloat Model::toFloat(std::string token) {

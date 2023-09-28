@@ -103,7 +103,11 @@ void Context::Render() {
         }
 
         if (ImGui::CollapsingHeader("material", ImGuiTreeNodeFlags_DefaultOpen)) {
-            ImGui::DragFloat("m.shininess", &m_material.shininess, 1.0f, 1.0f, 256.0f);
+            if (ImGui::Button("prev")) texNum = (texNum - 1 + 5) % 5 + 1;
+            ImGui::SameLine();
+            ImGui::Text("texture number: %d", texNum);
+            ImGui::SameLine();
+            if (ImGui::Button("next")) texNum = (texNum % 5) + 1;
         }
         ImGui::Checkbox("animation", &m_animation);
     }
@@ -153,10 +157,8 @@ void Context::Render() {
     m_program->SetUniform("light.ambient", m_light.ambient);
     m_program->SetUniform("light.diffuse", m_light.diffuse);
     m_program->SetUniform("light.specular", m_light.specular);
-
     m_program->SetUniform("material.diffuse", 0);
     m_program->SetUniform("material.specular", 1);
-    m_program->SetUniform("material.shininess", m_material.shininess);
     m_program->SetUniform("blinn", (m_blinn ? 1 : 0));
 
     glm::vec3 modelPosition(0.0f, 0.0f, 0.0f);
@@ -180,7 +182,7 @@ bool Context::Init() {
 
     m_box = Mesh::CreateBox();
 
-    m_model = Model::Load("./resources/teapot2.obj");
+    m_model = Model::Load("./resources/42.obj");
     if (!m_model)
         return false;
 
@@ -195,7 +197,7 @@ bool Context::Init() {
     SPDLOG_INFO("program id: {}", m_program->Get());
 
     m_material.diffuse = Texture::CreateFromImage(
-    Image::CreateSingleColorImage(4, 4, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)).get());
+    Image::CreateSingleColorImage(4, 4, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)).get());
 
     m_material.specular = Texture::CreateFromImage(
     Image::CreateSingleColorImage(4, 4, glm::vec4(0.5f, 0.5f, 0.5f, 1.0f)).get());
