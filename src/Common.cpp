@@ -18,10 +18,8 @@ std::optional<std::string> LoadTextFile(const std::string& filename) {
 std::vector<std::pair<std::string, std::vector<std::string>>> tokenize(std::istringstream& text) {
     std::vector<std::string> lines;
     std::string line;
-    int cnt;
     while (std::getline(text, line)) {
         lines.push_back(line);
-        cnt++;
     }
 
     std::vector<std::pair<std::string, std::vector<std::string>>> token;

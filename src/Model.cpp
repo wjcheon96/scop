@@ -139,7 +139,6 @@ void Model::FaceToNormal(std::vector<std::string> value) {
 void Model::TokenizeObj(std::istringstream& text) {
     std::vector<std::string> lines;
     std::string line;
-    int cnt;
     while (std::getline(text, line)) {
         std::istringstream lineStream(line);
         std::string key, word;
