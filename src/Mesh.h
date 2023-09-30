@@ -50,6 +50,8 @@ class Mesh {
         BufferPtr GetIndexBuffer() const { return m_indexBuffer; }
 
         void Draw(const Program* program, int idx) const;
+        void Draw(const Program* program) const;
+
 
     private:
         Mesh() {}
@@ -62,6 +64,8 @@ class Mesh {
         BufferPtr m_vertexBuffer;
         BufferPtr m_indexBuffer;
         std::vector<MaterialPtr> m_materials;
+        MaterialPtr m_material;
+        
         int m_count;
 };
 

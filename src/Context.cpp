@@ -168,9 +168,11 @@ void Context::Render() {
         auto lightModelTransform = mat * mat2;
 
         Vector4 colorVec((m_light.ambient + m_light.diffuse).x, (m_light.ambient + m_light.diffuse).y, (m_light.ambient + m_light.diffuse).z, 1.0f);
+
         m_simpleProgram->Use();
         m_simpleProgram->SetUniform("color", colorVec);
         m_simpleProgram->SetUniform("transform", projection * view * lightModelTransform);
+        // m_box->Draw(m_program.get());
     }
 
     m_program->Use();
@@ -179,7 +181,8 @@ void Context::Render() {
     m_program->SetUniform("light.direction", lightDir);
     float val1 = cosf(radians(m_light.cutoff.x));
     float val2 = cosf(radians(m_light.cutoff.x + m_light.cutoff.y));
-    m_program->SetUniform("light.cutoff", Vector2( val1, val2));
+    Vector2 cutoffVector = Vector2(val1, val2);
+    m_program->SetUniform("light.cutoff", cutoffVector);
     m_program->SetUniform("light.attenuation", GetAttenuationCoeff(m_light.distance));
     m_program->SetUniform("light.ambient", m_light.ambient);
     m_program->SetUniform("light.diffuse", m_light.diffuse);
@@ -189,7 +192,6 @@ void Context::Render() {
     m_program->SetUniform("blinn", (m_blinn ? 1 : 0));
 
     Vector3 modelPosition(0.0f, 0.0f, 0.0f);
-
     Matrix modelTransform = Matrix(1.0f);
 
     // 초기 위치로 이동 변환을 적용
@@ -201,13 +203,21 @@ void Context::Render() {
 
     m_program->SetUniform("transform", transform);
     m_program->SetUniform("modelTransform", modelTransform);
+
+    // for (int i = 0; i < 16; i++) {
+    //     std::cout << transform[i] << " ";
+    //     if (i % 4 == 3)
+    //         std::cout << std::endl;
+    // }
+    // std::cout << std::endl;
+
     m_model->Draw(m_program.get(), texNum - 1);
 }
 
 bool Context::Init() {
     glClearColor(0.0f, 0.1f, 0.2f, 0.0f);
 
-    m_box = Mesh::CreateBox();
+    // m_box = Mesh::CreateBox();
 
     m_model = Model::Load("./resources/teapot2.obj");
     if (!m_model)
@@ -222,6 +232,12 @@ bool Context::Init() {
     if (!m_program)
         return false;
     SPDLOG_INFO("program id: {}", m_program->Get());
+
+    // m_material.diffuse = Texture::CreateFromImage(
+    //     Image::CreateSingleColorImage(4, 4, Vector4(1.0f, 1.0f, 1.0f, 1.0f)).get());
+
+    // m_material.specular = Texture::CreateFromImage(
+    //     Image::CreateSingleColorImage(4, 4, Vector4(0.5f, 0.5f, 0.5f, 1.0f)).get());
 
     return true;
 }

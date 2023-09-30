@@ -93,9 +93,9 @@ void Model::SetMaterial() {
 // make vertex normal
 void Model::MakeNormal(uint32_t v1, uint32_t v2, uint32_t v3) {
     Vector3 normal = Vector3::Cross(v[v2 - 1] - v[v1 - 1], v[v3 - 1] - v[v1 - 1]).GetNormalized();    // face normal
-    vn[v1] = normal + vn[v1].GetNormalized();
-    vn[v2] = normal + vn[v2].GetNormalized();
-    vn[v3] = normal + vn[v3].GetNormalized();
+    vn[v1] = (normal + vn[v1]).GetNormalized();
+    vn[v2] = (normal + vn[v2]).GetNormalized();
+    vn[v3] = (normal + vn[v3]).GetNormalized();
 }
 
 void Model::MakeCorner(uint32_t val1, uint32_t val2, uint32_t val3, Vector3 center) {

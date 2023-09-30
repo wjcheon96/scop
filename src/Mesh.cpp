@@ -40,6 +40,13 @@ void Mesh::Init(const std::vector<Vertex>& vertices, const std::vector<uint32_t>
     // offsetof operator는 structure안의 인자로 들어온 member가 얼마만큼 건너 뛰었는지를 계산해준다.
     m_vertexLayout->SetAttrib(2, 2, GL_FLOAT, false,
         sizeof(Vertex), offsetof(Vertex, texCoord));
+    m_materials[0]->diffuse = Texture::CreateFromImage(
+        Image::CreateSingleColorImage(4, 4,
+            Vector4(0.5f, 0.1f, 0.1f, 1.0f)).get());
+
+    m_materials[0]->specular = Texture::CreateFromImage(
+        Image::CreateSingleColorImage(4, 4,
+            Vector4(0.5f, 0.1f, 0.1f, 1.0f)).get());
 }
 
 void Mesh::Draw(const Program* program, int idx) const {
@@ -119,4 +126,13 @@ void Material::SetToProgram(const Program* program) const {
     // texture 다시 0번으로 초기화시켜서, shininess 추가.
     glActiveTexture(GL_TEXTURE0);
     program->SetUniform("material.shininess", shininess);
+}
+
+
+void Mesh::Draw(const Program* program) const {
+    m_vertexLayout->Bind();
+    if (m_material) {
+        m_material->SetToProgram(program);
+    }
+    glDrawElements(m_primitiveType, m_indexBuffer->GetCount(), GL_UNSIGNED_INT, 0);
 }
