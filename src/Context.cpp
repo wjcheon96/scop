@@ -129,6 +129,8 @@ void Context::Render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     // depth test를 켜서, z 버퍼상 뒤에 있는 그림(1에 가까운쪽)을 안 그리게끔 한다.
     glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+
 
     Matrix m1 = Matrix(1.0f);
     Matrix m2 = Matrix(1.0f);

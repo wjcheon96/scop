@@ -103,7 +103,7 @@ Vector4 Vector4::Mul(float a, const Vector4& b) {
 	return Vector4(a * b.x, a * b.y, a * b.z, a * b.w);
 }
 
-float getClamp(float value, float minVal, float maxVal) {
+float Vector4::getClamp(float value, float minVal, float maxVal) {
 	if (value < minVal) {
 		return minVal;
     } else if (value > maxVal) {
@@ -121,7 +121,6 @@ Vector4 Vector4::Clamp(const Vector4& vector, float minVal, float maxVal) {
 	vec.w = getClamp(vector.w, minVal, maxVal);
 	return vec;
 }
-
 
 bool operator==(Vector4& lhs, const Vector4& rhs)
 {

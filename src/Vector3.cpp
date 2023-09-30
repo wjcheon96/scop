@@ -146,3 +146,21 @@ Vector3 operator-=(Vector3& lhs, const Vector3& rhs)
 	lhs.z -= rhs.z;
 	return lhs;
 }
+
+float Vector3::getClamp(float value, float minVal, float maxVal) {
+	if (value < minVal) {
+		return minVal;
+    } else if (value > maxVal) {
+		return maxVal;
+    } else {
+		return value;
+    }
+}
+
+Vector3 Vector3::Clamp(const Vector3& vector, float minVal, float maxVal) {
+	Vector3 vec = Vector3();
+	vec.x = getClamp(vector.x, minVal, maxVal);
+	vec.y = getClamp(vector.y, minVal, maxVal);
+	vec.z = getClamp(vector.z, minVal, maxVal);
+	return vec;
+}

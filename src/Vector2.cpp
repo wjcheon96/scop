@@ -143,3 +143,21 @@ std::ostream& operator<<(std::ostream& os, const Vector2& v)
 	os << std::resetiosflags(std::ios_base::fixed | std::ios_base::floatfield);
 	return os;
 }
+
+
+float Vector2::getClamp(float value, float minVal, float maxVal) {
+	if (value < minVal) {
+		return minVal;
+    } else if (value > maxVal) {
+		return maxVal;
+    } else {
+		return value;
+    }
+}
+
+Vector2 Vector2::Clamp(const Vector2& vector, float minVal, float maxVal) {
+	Vector2 vec = Vector2();
+	vec.x = getClamp(vector.x, minVal, maxVal);
+	vec.y = getClamp(vector.y, minVal, maxVal);
+	return vec;
+}

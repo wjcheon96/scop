@@ -43,6 +43,10 @@ struct Vector3 {
 	static Vector3 Mul(float a, const Vector3& b) ;
 	static Vector3 Mul(const Vector3& a, const Vector3& b);
 
+	static float getClamp(float value, float minVal, float maxVal);
+
+	static Vector3 Clamp(const Vector3& vector, float minVal, float maxVal);
+
 	friend bool operator==(Vector3& lhs, const Vector3& rhs);
 	friend bool operator!=(Vector3& lhs, const Vector3& rhs);
 	friend Vector3 operator+(const Vector3& lhs, const Vector3& rhs);

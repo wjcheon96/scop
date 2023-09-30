@@ -19,6 +19,11 @@ struct Vector2 {
 	Vector2 Set(float x, float y);
 	Vector2 GetNormalized(void);
 
+
+	static float getClamp(float value, float minVal, float maxVal);
+
+	static Vector2 Clamp(const Vector2& vector, float minVal, float maxVal);
+
 	static float* GetValue(Vector2& value);
 	static const float* GetValue(const Vector2& value);
 

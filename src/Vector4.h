@@ -33,6 +33,8 @@ struct Vector4 {
 	static Vector4 Mul(float a, const Vector4& b) ;
 	static Vector4 Mul(const Vector4& a, const Vector4& b);
 
+	static float getClamp(float value, float minVal, float maxVal);
+
 	static Vector4 Clamp(const Vector4& vector, float minVal, float maxVal);
 
 	friend bool operator==(Vector4& lhs, const Vector4& rhs);
