@@ -115,9 +115,10 @@ float getClamp(float value, float minVal, float maxVal) {
 
 Vector4 Vector4::Clamp(const Vector4& vector, float minVal, float maxVal) {
 	Vector4 vec = Vector4();
-	vec.x = getClamp(vec.x, minVal, maxVal);
-	vec.y = getClamp(vec.y, minVal, maxVal);
-	vec.z = getClamp(vec.z, minVal, maxVal);
+	vec.x = getClamp(vector.x, minVal, maxVal);
+	vec.y = getClamp(vector.y, minVal, maxVal);
+	vec.z = getClamp(vector.z, minVal, maxVal);
+	vec.w = getClamp(vector.w, minVal, maxVal);
 	return vec;
 }
 

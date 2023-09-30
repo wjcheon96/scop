@@ -2,7 +2,6 @@
 #include "Common.h"
 #include "Mesh.h"
 #include "VertexLayout.h"
-#include "glm/fwd.hpp"
 #include <utility>
 #include <vector>
 #include <iostream>

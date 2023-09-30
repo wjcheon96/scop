@@ -141,13 +141,13 @@ Matrix Matrix::Sub(const Matrix& a, const Matrix& b) {
 	return destination;
 }
 
-Vector4 Matrix::Mul(const Matrix& a, const Vector4& b) {
-	return Vector4(a[0] * b.x + a[4] * b.x + a[8] * b.x + a[12] * b.x,
-				a[1] * b.y + a[5] * b.y + a[9] * b.y + a[13] * b.y,
-				a[2] * b.z + a[6] * b.z + a[10] * b.z + a[14] * b.z,
-				a[3] * b.w + a[7] * b.w + a[11] * b.w + a[15] * b.w
-	);
-}
+// Vector4 Matrix::Mul(const Matrix& a, const Vector4& b) {
+// 	return Vector4(a[0] * b.x + a[4] * b.x + a[8] * b.x + a[12] * b.x,
+// 				a[1] * b.y + a[5] * b.y + a[9] * b.y + a[13] * b.y,
+// 				a[2] * b.z + a[6] * b.z + a[10] * b.z + a[14] * b.z,
+// 				a[3] * b.w + a[7] * b.w + a[11] * b.w + a[15] * b.w
+// 	);
+// }
 
 Matrix Matrix::Mul(const Matrix& a, const Matrix& b) {
 	return Matrix(a[0] * b[0]  + a[4] * b[1]  + a[8] * b[2]  + a[12] * b[3],

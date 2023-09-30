@@ -57,3 +57,7 @@ Vector3 GetAttenuationCoeff(float distance) {
     return Vector3(kc, kc, kc);
     // return Vector3(kc, Vector3::Max(kl, 0.0f), Vector3::Max(kq*kq, 0.0f));
 }
+
+float radians(float degrees) {
+    return degrees * (M_PI / 180.0f);
+}

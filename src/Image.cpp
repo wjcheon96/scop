@@ -50,7 +50,7 @@ ImageUPtr Image::CreateSingleColorImage(int width, int height, const Vector4& co
     // color를 uint8_t로 바꾸면서, color가 0 ~ 1 사이의 값으로 들어오므로, 255를 곱해서 0 ~ 255 사이의 값으로 만들어준다.
     Vector4 clamped = Vector4::Clamp(color * 255.0f, 0.0f, 255.0f);
     uint8_t rgba[4] = {
-        (uint8_t)clamped.x, 
+        (uint8_t)clamped.x,
         (uint8_t)clamped.y, 
         (uint8_t)clamped.z, 
         (uint8_t)clamped.w, 

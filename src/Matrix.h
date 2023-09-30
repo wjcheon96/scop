@@ -47,7 +47,7 @@ struct Matrix {
 	static void Identity(Matrix& matrix);
 	static Matrix Add(const Matrix& a, const Matrix& b);
 	static Matrix Sub(const Matrix& a, const Matrix& b);
-	static Vector4 Mul(const Matrix& a, const Vector4& b);
+	// static Vector4 Mul(const Matrix& a, const Vector4& b);
 	static Matrix Mul(const Matrix& a, const Matrix& b);
 	//static void Rotate(Matrix& matrix, const float angle, const Vector3& axis);
 	static void RotateX(Matrix& matrix, const float angle);

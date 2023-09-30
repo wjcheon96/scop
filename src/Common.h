@@ -9,9 +9,6 @@
 #include <GLFW/glfw3.h>
 #include <spdlog/spdlog.h>
 #include "Matrix.h"
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 #include "Vector2.h"
 #include "Vector3.h"
@@ -20,6 +17,8 @@
 std::optional<std::string> LoadTextFile(const std::string& filename);
 Vector3 GetAttenuationCoeff(float distance);
 std::vector<std::pair<std::string, std::vector<std::string>>> tokenize(std::istringstream& text);
+
+float radians(float degrees);
 
 #define CLASS_PTR(className) \
 class className; \

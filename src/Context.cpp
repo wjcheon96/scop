@@ -1,6 +1,5 @@
 #include "Context.h"
 #include "Mesh.h"
-#include "glm/ext/matrix_transform.hpp"
 
 ContextUPtr Context::Create() {
     auto context = ContextUPtr(new Context());
@@ -103,6 +102,7 @@ void Context::Render() {
         }
 
         if (ImGui::CollapsingHeader("material", ImGuiTreeNodeFlags_DefaultOpen)) {
+            // prev 버튼 안 먹힘
             if (ImGui::Button("prev")) texNum = (texNum - 1 + 5) % 5 + 1;
             ImGui::SameLine();
             ImGui::Text("texture number: %d", texNum);
@@ -118,18 +118,22 @@ void Context::Render() {
     // depth test를 켜서, z 버퍼상 뒤에 있는 그림(1에 가까운쪽)을 안 그리게끔 한다.
     glEnable(GL_DEPTH_TEST);
 
+
+    // a = glm::rotate(glm::mat4(1.0f), glm::radians(m_cameraYaw), glm::vec3(0.0f, 1.0f, 0.0f));
+    // b = glm::rotate(glm::mat4(1.0f), glm::radians(m_cameraPitch), glm::vec3(1.0f, 0.0f, 0.0f));
+
+    // m_cameraFront = a * b * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f);
+
     Matrix m1 = Matrix(1.0f);
     Matrix m2 = Matrix(1.0f);
-    m1.RotateY(m1, glm::radians(m_cameraYaw));
-    m2.RotateX(m2, glm::radians(m_cameraPitch));
-
+    m1.RotateY(m1, radians(m_cameraYaw));
+    m2.RotateX(m2, radians(m_cameraPitch));
 
     Matrix m =  m1 * m2;
     Vector4 zVec = Vector4(0.0f, 0.0f, -1.0f, 0.0f);
-    zVec = Matrix::Mul(m, zVec);
 
     // m_cameraFront를 yaw/pitch에 따라 방향 결정.(0, 0, -1)방향을 x축, y축에 따라 회전시킨다.
-    m_cameraFront = Vector3(zVec.x, zVec.y, zVec.z);
+    m_cameraFront = Vector3(m[2] * -1, m[6] * -1, m[10] * -1);
 
     Vector3 target = m_cameraPos + m_cameraFront;
 
@@ -140,9 +144,12 @@ void Context::Render() {
         m_cameraUp
     );
 
+    // std::cout << m_cameraPos.x << " " << m_cameraPos.y << " " << m_cameraPos.z << std::endl;
+    std::cout << m_cameraFront.x << " " << m_cameraFront.y << " " << m_cameraFront.z << std::endl;
+
     // zNear, zFar 파라미터가 어느 지점까지 보이는지를 확인 가능하게 한다.
     // // 종횡비 4:3, 세로화각 45도의 원근 투영
-    auto projection = Matrix::GetPerspective(glm::radians(45.0f),(float)m_width / (float)m_height, 0.01f, 50.0f);
+    auto projection = Matrix::GetPerspective(radians(45.0f),(float)m_width / (float)m_height, 0.01f, 50.0f);
 
     Vector3 lightPos = m_light.position;
     Vector3 lightDir = m_light.direction;
@@ -150,13 +157,16 @@ void Context::Render() {
         lightPos = m_cameraPos;
         lightDir = m_cameraFront;
     } else {
-        Matrix lightModelTransform = Matrix();
-        Matrix scaleMatrix = Matrix(1.0f);
-        lightModelTransform.Translate(scaleMatrix, m_light.position.x, m_light.position.y, m_light.position.y);
-        scaleMatrix.Scale(scaleMatrix, 0.1f);
-        lightModelTransform = Matrix::Mul(lightModelTransform, scaleMatrix);
+        Matrix mat(1.0f);
+        mat.Translate(mat, m_light.position.x, m_light.position.y, m_light.position.z);
+        Matrix mat2(1.0f);
+        Vector3 scaleVec(0.1);
+        Matrix::Scale(mat2, scaleVec);
+        auto lightModelTransform = mat * mat2;
+
+        Vector4 colorVec((m_light.ambient + m_light.diffuse).x, (m_light.ambient + m_light.diffuse).y, (m_light.ambient + m_light.diffuse).z, 1.0f);
         m_simpleProgram->Use();
-        m_simpleProgram->SetUniform("color", Vector4(m_light.ambient.x + m_light.diffuse.x, m_light.ambient.y + m_light.diffuse.y, m_light.ambient.z + m_light.diffuse.z, 1.0f));
+        m_simpleProgram->SetUniform("color", colorVec);
         m_simpleProgram->SetUniform("transform", projection * view * lightModelTransform);
     }
 
@@ -164,9 +174,10 @@ void Context::Render() {
     m_program->SetUniform("viewPos", m_cameraPos);
     m_program->SetUniform("light.position", lightPos);
     m_program->SetUniform("light.direction", lightDir);
-    float val1 = cosf(glm::radians(m_light.cutoff.x));
-    float val2 = cosf(glm::radians(m_light.cutoff.x + m_light.cutoff.y));
+    float val1 = cosf(radians(m_light.cutoff.x));
+    float val2 = cosf(radians(m_light.cutoff.x + m_light.cutoff.y));
     m_program->SetUniform("light.cutoff", Vector2( val1, val2));
+    // 얘 다름
     m_program->SetUniform("light.attenuation", GetAttenuationCoeff(m_light.distance));
     m_program->SetUniform("light.ambient", m_light.ambient);
     m_program->SetUniform("light.diffuse", m_light.diffuse);
@@ -183,8 +194,9 @@ void Context::Render() {
     Matrix::Translate(modelTransform, modelPosition.x, modelPosition.y, modelPosition.z);
 
     if (m_animation)
-        Matrix::RotateY(modelTransform, glm::radians((float)glfwGetTime() * 120.0f + 20.0f));
+        Matrix::RotateY(modelTransform, radians((float)glfwGetTime() * 120.0f + 20.0f));
     auto transform = projection * view * modelTransform;
+
     m_program->SetUniform("transform", transform);
     m_program->SetUniform("modelTransform", modelTransform);
     m_model->Draw(m_program.get(), texNum - 1);
