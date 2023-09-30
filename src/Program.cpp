@@ -48,7 +48,6 @@ void Program::Use() const {
 }
 
 // 함수 오버로딩. uniform location만 받으면 int 값을 세팅하고, matrix 값을 밭으면 아래 함수를 통해서 세팅한다.
-
 void Program::SetUniform(const std::string& name, int value) const {
     auto loc = glGetUniformLocation(m_program, name.c_str());
     glUniform1i(loc, value);

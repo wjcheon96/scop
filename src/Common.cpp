@@ -54,8 +54,10 @@ Vector3 GetAttenuationCoeff(float distance) {
     float kl = Vector4::Dot(linear_coeff, dvec);
     float kq = Vector4::Dot(quad_coeff, dvec);
     
-    return Vector3(kc, kc, kc);
-    // return Vector3(kc, Vector3::Max(kl, 0.0f), Vector3::Max(kq*kq, 0.0f));
+    float f1, f2;
+    f1 = kl > 0.0f ? kl : 0.0f;
+    f2 = kq * kq > 0.0f ? kq * kq : 0.0f;
+    return Vector3(kc, f1, f2);
 }
 
 float radians(float degrees) {

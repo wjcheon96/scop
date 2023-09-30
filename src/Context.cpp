@@ -1,6 +1,11 @@
 #include "Context.h"
 #include "Mesh.h"
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+
 ContextUPtr Context::Create() {
     auto context = ContextUPtr(new Context());
     if (!context->Init())
@@ -103,11 +108,18 @@ void Context::Render() {
 
         if (ImGui::CollapsingHeader("material", ImGuiTreeNodeFlags_DefaultOpen)) {
             // prev 버튼 안 먹힘
-            if (ImGui::Button("prev")) texNum = (texNum - 1 + 5) % 5 + 1;
+            if (ImGui::Button("prev")) {
+                texNum = (texNum - 2 + 5) % 5 + 1; // -2를 추가하여 이전 숫자로 이동
+                if (texNum == 0) {
+                    texNum = 5;
+                }
+            }   
             ImGui::SameLine();
             ImGui::Text("texture number: %d", texNum);
             ImGui::SameLine();
             if (ImGui::Button("next")) texNum = (texNum % 5) + 1;
+            ImGui::SameLine();
+            if (ImGui::Button("default texture")) texNum = 1;
         }
         ImGui::Checkbox("animation", &m_animation);
     }
@@ -118,12 +130,6 @@ void Context::Render() {
     // depth test를 켜서, z 버퍼상 뒤에 있는 그림(1에 가까운쪽)을 안 그리게끔 한다.
     glEnable(GL_DEPTH_TEST);
 
-
-    // a = glm::rotate(glm::mat4(1.0f), glm::radians(m_cameraYaw), glm::vec3(0.0f, 1.0f, 0.0f));
-    // b = glm::rotate(glm::mat4(1.0f), glm::radians(m_cameraPitch), glm::vec3(1.0f, 0.0f, 0.0f));
-
-    // m_cameraFront = a * b * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f);
-
     Matrix m1 = Matrix(1.0f);
     Matrix m2 = Matrix(1.0f);
     m1.RotateY(m1, radians(m_cameraYaw));
@@ -133,7 +139,7 @@ void Context::Render() {
     Vector4 zVec = Vector4(0.0f, 0.0f, -1.0f, 0.0f);
 
     // m_cameraFront를 yaw/pitch에 따라 방향 결정.(0, 0, -1)방향을 x축, y축에 따라 회전시킨다.
-    m_cameraFront = Vector3(m[2] * -1, m[6] * -1, m[10] * -1);
+    m_cameraFront = Vector3(m[8] * -1, m[9] * -1, m[10] * -1);
 
     Vector3 target = m_cameraPos + m_cameraFront;
 
@@ -143,9 +149,6 @@ void Context::Render() {
         target,
         m_cameraUp
     );
-
-    // std::cout << m_cameraPos.x << " " << m_cameraPos.y << " " << m_cameraPos.z << std::endl;
-    std::cout << m_cameraFront.x << " " << m_cameraFront.y << " " << m_cameraFront.z << std::endl;
 
     // zNear, zFar 파라미터가 어느 지점까지 보이는지를 확인 가능하게 한다.
     // // 종횡비 4:3, 세로화각 45도의 원근 투영
@@ -177,7 +180,6 @@ void Context::Render() {
     float val1 = cosf(radians(m_light.cutoff.x));
     float val2 = cosf(radians(m_light.cutoff.x + m_light.cutoff.y));
     m_program->SetUniform("light.cutoff", Vector2( val1, val2));
-    // 얘 다름
     m_program->SetUniform("light.attenuation", GetAttenuationCoeff(m_light.distance));
     m_program->SetUniform("light.ambient", m_light.ambient);
     m_program->SetUniform("light.diffuse", m_light.diffuse);
