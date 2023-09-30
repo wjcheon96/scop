@@ -28,6 +28,9 @@ struct Vector3 {
 	Vector3 Set(float x, float y, float z);
 	Vector3 GetNormalized(void);
 
+	static float* GetValue(Vector3& value);
+	static const float* GetValue(const Vector3& value);
+
 	static float Dot(const Vector3& a, const Vector3& b);
 	static Vector3 Cross(const Vector3& a, const Vector3& b);
 	static float Angle(const Vector3& a, const Vector3& b);
@@ -37,6 +40,8 @@ struct Vector3 {
 	static Vector3 Max(const Vector3& a, const Vector3& b);
 	static Vector3 Add(const Vector3& a, const Vector3& b);
 	static Vector3 Sub(const Vector3& a, const Vector3& b);
+	static Vector3 Mul(float a, const Vector3& b) ;
+	static Vector3 Mul(const Vector3& a, const Vector3& b);
 
 	friend bool operator==(Vector3& lhs, const Vector3& rhs);
 	friend bool operator!=(Vector3& lhs, const Vector3& rhs);
@@ -50,4 +55,5 @@ struct Vector3 {
 	friend float operator&(const Vector3& lhs, const Vector3& rhs);
 
 	friend std::ostream& operator<<(std::ostream& os, const Vector3& v);
+
 };

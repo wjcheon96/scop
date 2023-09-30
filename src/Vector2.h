@@ -19,6 +19,9 @@ struct Vector2 {
 	Vector2 Set(float x, float y);
 	Vector2 GetNormalized(void);
 
+	static float* GetValue(Vector2& value);
+	static const float* GetValue(const Vector2& value);
+
 	static float Dot(const Vector2& a, const Vector2& b);
 	static float Angle(const Vector2& a, const Vector2& b);
 	static float Magnitude(const Vector2& a);

@@ -5,11 +5,13 @@
 #include <cmath>
 
 #include "Vector3.h"
+#include "Vector4.h"
 
 struct Matrix {
 	float values[16];
 
 	Matrix(void);
+	Matrix(const float val);
 	Matrix(const float copy[16]);
 	Matrix(float m00, float m01, float m02, float m03,
 			float m04, float m05, float m06, float m07,
@@ -32,20 +34,27 @@ struct Matrix {
 
 	void Scale(float scale);
 
+
 	bool Equals(const Matrix& other) const;
 
 	Matrix GetTransposed(void) const;
 	Matrix GetCopy(void) const;
 
+	// static float* GetValue(Matrix& value);
+	static const float* GetValue(const Matrix& value);
+
+
 	static void Identity(Matrix& matrix);
 	static Matrix Add(const Matrix& a, const Matrix& b);
 	static Matrix Sub(const Matrix& a, const Matrix& b);
+	static Vector4 Mul(const Matrix& a, const Vector4& b);
 	static Matrix Mul(const Matrix& a, const Matrix& b);
 	//static void Rotate(Matrix& matrix, const float angle, const Vector3& axis);
 	static void RotateX(Matrix& matrix, const float angle);
 	static void RotateY(Matrix& matrix, const float angle);
 	static void RotateZ(Matrix& matrix, const float angle);
 	static void Scale(Matrix& matrix, float s);
+	static Matrix Scale(Matrix& matrix, Vector3& vec);
 	static void Scale(Matrix& matrix, float x, float y, float z);
 	static void Translate(Matrix& matrix, float x, float y, float z);
 	static Matrix LookAt(Vector3& position, Vector3& target, Vector3& up);

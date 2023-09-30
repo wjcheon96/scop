@@ -23,6 +23,17 @@ Vector2 Vector2::Set(float x, float y) {
 	return *this;
 }
 
+
+float* Vector2::GetValue(Vector2& value) {
+	return &value.x;
+}
+
+
+const float* Vector2::GetValue(const Vector2& value) {
+	return &value.x;
+}
+
+
 Vector2 Vector2::GetNormalized(void) {
 	Vector2 destination(x, y);
 	float invMagnitude = 1.0f / (float) Vector2::Magnitude(destination);

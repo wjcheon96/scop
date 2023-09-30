@@ -18,18 +18,18 @@ class Context{
         void MouseMove(double x, double y);
         void MouseButton(int button, int action, double x, double y);
         void MouseScroll(double yoffset);
-        void DrawScene(const glm::mat4& view, const glm::mat4& projection, const Program* program);
+        void DrawScene(const Matrix& view, const Matrix& projection, const Program* program);
 
     private:
         Context() {}
         bool Init();
 
         // 카메라 세팅
-        glm::vec3 m_cameraPos { glm::vec3(0.0f, 0.0f, 3.0f) };
+        Vector3 m_cameraPos { Vector3(0.0f, 0.0f, 3.0f) };
         // 바라보는 방향 세팅.
-        glm::vec3 m_cameraFront { glm::vec3(0.0f, 0.0f, -1.0f) };
+        Vector3 m_cameraFront { Vector3(0.0f, 0.0f, -1.0f) };
         // 카메라가 특정 지점을 바라보게 하는 법.
-        glm::vec3 m_cameraUp { glm::vec3(0.0f, 1.0f, 0.0f) };
+        Vector3 m_cameraUp { Vector3(0.0f, 1.0f, 0.0f) };
 
         // camera parameter.
         // pitch 와 yaw에 대한 값 세팅.
@@ -46,13 +46,13 @@ class Context{
 
         // 빛 세팅
         struct Light {
-            glm::vec3 position { glm::vec3(2.0f, 2.0f, 2.0f) };
-            glm::vec3 direction { glm::vec3(-1.0f, -1.0f, -1.0f) };
-            glm::vec2 cutoff { glm::vec2(20.0f, 5.0f) };
+            Vector3 position { Vector3(2.0f, 2.0f, 2.0f) };
+            Vector3 direction { Vector3(-1.0f, -1.0f, -1.0f) };
+            Vector2 cutoff { Vector2(20.0f, 5.0f) };
             float distance { 32.0f };
-            glm::vec3 ambient { glm::vec3(0.1f, 0.1f, 0.1f) };
-            glm::vec3 diffuse { glm::vec3(0.5f, 0.5f, 0.5f) };
-            glm::vec3 specular { glm::vec3(1.0f, 1.0f, 1.0f) };
+            Vector3 ambient { Vector3(0.1f, 0.1f, 0.1f) };
+            Vector3 diffuse { Vector3(0.5f, 0.5f, 0.5f) };
+            Vector3 specular { Vector3(1.0f, 1.0f, 1.0f) };
         };
         Light m_light;
 
@@ -69,14 +69,14 @@ class Context{
         bool m_animation { true };
         bool m_blinn { false };
 
-        glm::vec2 m_prevMousePos { glm::vec2(0.0f) };
+        Vector2 m_prevMousePos { Vector2(0.0f) };
 
         MeshUPtr m_box;
         ModelUPtr m_model;
 
         int texNum { 1 };
 
-        glm::vec4 m_clearColor { glm::vec4(0.1f, 0.1f, 0.1f, 0.0f) };
+        Vector4 m_clearColor { Vector4(0.1f, 0.1f, 0.1f, 0.0f) };
 };
 
 #endif

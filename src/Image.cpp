@@ -46,14 +46,14 @@ Image::~Image() {
 }
 
 // 단색 texture를 만든다.
-ImageUPtr Image::CreateSingleColorImage(int width, int height, const glm::vec4& color) {
+ImageUPtr Image::CreateSingleColorImage(int width, int height, const Vector4& color) {
     // color를 uint8_t로 바꾸면서, color가 0 ~ 1 사이의 값으로 들어오므로, 255를 곱해서 0 ~ 255 사이의 값으로 만들어준다.
-    glm::vec4 clamped = glm::clamp(color * 255.0f, 0.0f, 255.0f);
+    Vector4 clamped = Vector4::Clamp(color * 255.0f, 0.0f, 255.0f);
     uint8_t rgba[4] = {
-        (uint8_t)clamped.r, 
-        (uint8_t)clamped.g, 
-        (uint8_t)clamped.b, 
-        (uint8_t)clamped.a, 
+        (uint8_t)clamped.x, 
+        (uint8_t)clamped.y, 
+        (uint8_t)clamped.z, 
+        (uint8_t)clamped.w, 
     };
     // 4개의 채널을 가진 이미지를 만들어, 4byte씩 복사한다.
     auto image = Create(width, height, 4);

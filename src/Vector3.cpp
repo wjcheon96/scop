@@ -44,6 +44,15 @@ Vector3 Vector3::GetNormalized(void) {
 	return destination;
 }
 
+float* Vector3::GetValue(Vector3& value) {
+	return &value.x;
+}
+
+
+const float* Vector3::GetValue(const Vector3& value) {
+	return &value.x;
+}
+
 bool Vector3::Equals(Vector3 vector) {
 	return x == vector.x && y == vector.y && z == vector.z;
 }
@@ -94,6 +103,13 @@ Vector3 Vector3::Sub(const Vector3& a, const Vector3& b) {
 	return Vector3(a.x - b.x, a.y - b.y, a.z - b.z);
 }
 
+Vector3 Vector3::Mul(const Vector3& a, const Vector3& b) {
+	return Vector3(a.x * b.x, a.y * b.y, a.z * b.z);
+}
+
+Vector3 Vector3::Mul(float a, const Vector3& b) {
+	return Vector3(a * b.x, a * b.y, a * b.z);
+}
 
 bool operator==(Vector3& lhs, const Vector3& rhs)
 {
@@ -115,5 +131,18 @@ Vector3 operator+=(Vector3& lhs, const Vector3& rhs)
 	lhs.x += rhs.x;
 	lhs.y += rhs.y;
 	lhs.z += rhs.z;
+	return lhs;
+}
+
+Vector3 operator-(const Vector3& lhs, const Vector3& rhs)
+{
+	return Vector3::Sub(lhs, rhs);
+}
+
+Vector3 operator-=(Vector3& lhs, const Vector3& rhs)
+{
+	lhs.x -= rhs.x;
+	lhs.y -= rhs.y;
+	lhs.z -= rhs.z;
 	return lhs;
 }

@@ -21,30 +21,30 @@ void Context::KeyInput(GLFWwindow* window) {
 
     const float cameraSpeed = 0.05f;
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        m_cameraPos += cameraSpeed * m_cameraFront;
+        m_cameraPos += Vector3::Mul(cameraSpeed, m_cameraFront);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        m_cameraPos -= cameraSpeed * m_cameraFront;
+        m_cameraPos -= Vector3::Mul(cameraSpeed, m_cameraFront);
 
-    auto cameraLeft = glm::normalize(glm::cross(m_cameraUp, m_cameraFront));
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        m_cameraPos -= cameraSpeed * cameraLeft;
+    auto cameraLeft = Vector3::Cross(m_cameraUp, m_cameraFront).GetNormalized();
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) 
+        m_cameraPos -= Vector3::Mul(cameraSpeed, cameraLeft);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        m_cameraPos += cameraSpeed * cameraLeft;
+        m_cameraPos += Vector3::Mul(cameraSpeed, cameraLeft);
 
-    auto cameraUp = glm::normalize(glm::cross(m_cameraFront, cameraLeft));
+    auto cameraUp = Vector3::Cross(m_cameraFront, cameraLeft).GetNormalized();
     if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-        m_cameraPos += cameraSpeed * cameraUp;
+        m_cameraPos += Vector3::Mul(cameraSpeed, cameraUp);
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-        m_cameraPos -= cameraSpeed * cameraUp;
+        m_cameraPos -= Vector3::Mul(cameraSpeed, cameraUp);
 }
 
 void Context::MouseMove(double x, double y) {
     // 마우스 클릭이 안 됐으면 해당 함수를 실행시키지 않는다.
     if (!m_cameraControl)
         return;
-    auto pos = glm::vec2((float)x, (float)y);
+    auto pos = Vector2((float)x, (float)y);
     auto deltaPos = pos - m_prevMousePos;
-    static glm::vec2 prevPos = glm::vec2((float)x, (float)y);
+    static Vector2 prevPos = Vector2((float)x, (float)y);
 
     const float cameraRotSpeed = 0.8f;
     // yaw와 pitch를 계산한다. rotspeed를 조절하여 너무 빠른 전환이 안 일어나게끔 한다.
@@ -65,7 +65,7 @@ void Context::MouseButton(int button, int action, double x, double y) {
     if (button == GLFW_MOUSE_BUTTON_MIDDLE) {
         if (action == GLFW_PRESS) {
         // 마우스 조작 시작 시점에 현재 마우스 커서 위치 저장
-            m_prevMousePos = glm::vec2((float)x, (float)y);
+            m_prevMousePos = Vector2((float)x, (float)y);
             m_cameraControl = true;
         }
         else if (action == GLFW_RELEASE) {
@@ -76,30 +76,30 @@ void Context::MouseButton(int button, int action, double x, double y) {
 
 void Context::Render() {
     if (ImGui::Begin("ui window")) {
-        if (ImGui::ColorEdit4("clear color", glm::value_ptr(m_clearColor))) {
-            glClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
+        if (ImGui::ColorEdit4("clear color", Vector4::GetValue(m_clearColor))) {
+            glClearColor(m_clearColor.x, m_clearColor.y, m_clearColor.z, m_clearColor.w);
         }
         ImGui::Separator();
         if (ImGui::CollapsingHeader("light", ImGuiTreeNodeFlags_DefaultOpen)) {
-            ImGui::DragFloat3("l.position", glm::value_ptr(m_light.position), 0.01f);
-            ImGui::DragFloat3("l.direction", glm::value_ptr(m_light.direction), 0.01f);
-            ImGui::DragFloat2("l.cutoff", glm::value_ptr(m_light.cutoff), 0.1f, 0.0f, 180.0f);
+            ImGui::DragFloat3("l.position", Vector3::GetValue(m_light.position), 0.01f);
+            ImGui::DragFloat3("l.direction", Vector3::GetValue(m_light.direction), 0.01f);
+            ImGui::DragFloat2("l.cutoff", Vector2::GetValue(m_light.cutoff), 0.1f, 0.0f, 180.0f);
             ImGui::DragFloat("l.distance", &m_light.distance, 0.1f, 0.0f, 1000.0f);
-            ImGui::ColorEdit3("l.ambient", glm::value_ptr(m_light.ambient));
-            ImGui::ColorEdit3("l.diffuse", glm::value_ptr(m_light.diffuse));
-            ImGui::ColorEdit3("l.specular", glm::value_ptr(m_light.specular));
+            ImGui::ColorEdit3("l.ambient", Vector3::GetValue(m_light.ambient));
+            ImGui::ColorEdit3("l.diffuse", Vector3::GetValue(m_light.diffuse));
+            ImGui::ColorEdit3("l.specular", Vector3::GetValue(m_light.specular));
             ImGui::Checkbox("flash light", &m_flashLightMode);
             ImGui::Checkbox("l.blinn", &m_blinn);
         }
         ImGui::Separator();
-        ImGui::DragFloat3("camera pos", glm::value_ptr(m_cameraPos), 0.01f);
+        ImGui::DragFloat3("camera pos", Vector3::GetValue(m_cameraPos), 0.01f);
         ImGui::DragFloat("camera yaw", &m_cameraYaw, 0.5f);
         ImGui::DragFloat("camera pitch", &m_cameraPitch, 0.5f, -89.0f, 89.0f);
         ImGui::Separator();
         if (ImGui::Button("reset camera")) {
             m_cameraYaw = 0.0f;
             m_cameraPitch = 0.0f;
-            m_cameraPos = glm::vec3(0.0f, 0.0f, 0.0f);
+            m_cameraPos = Vector3(0.0f, 0.0f, 0.0f);
         }
 
         if (ImGui::CollapsingHeader("material", ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -118,31 +118,45 @@ void Context::Render() {
     // depth test를 켜서, z 버퍼상 뒤에 있는 그림(1에 가까운쪽)을 안 그리게끔 한다.
     glEnable(GL_DEPTH_TEST);
 
+    Matrix m1 = Matrix(1.0f);
+    Matrix m2 = Matrix(1.0f);
+    m1.RotateY(m1, glm::radians(m_cameraYaw));
+    m2.RotateX(m2, glm::radians(m_cameraPitch));
+
+
+    Matrix m =  m1 * m2;
+    Vector4 zVec = Vector4(0.0f, 0.0f, -1.0f, 0.0f);
+    zVec = Matrix::Mul(m, zVec);
+
     // m_cameraFront를 yaw/pitch에 따라 방향 결정.(0, 0, -1)방향을 x축, y축에 따라 회전시킨다.
-    m_cameraFront = glm::rotate(glm::mat4(1.0f), glm::radians(m_cameraYaw), glm::vec3(0.0f, 1.0f, 0.0f)) * glm::rotate(glm::mat4(1.0f),
-        glm::radians(m_cameraPitch), glm::vec3(1.0f, 0.0f, 0.0f)) * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f);
+    m_cameraFront = Vector3(zVec.x, zVec.y, zVec.z);
+
+    Vector3 target = m_cameraPos + m_cameraFront;
 
     // 카메라는 카메라 벡터에 대해 설정된 값에 따라서 보이는 위치를 잡아준다.
-    auto view = glm::lookAt(
+    auto view = Matrix::LookAt(
         m_cameraPos,
-        m_cameraPos + m_cameraFront,
-        m_cameraUp);
+        target,
+        m_cameraUp
+    );
 
     // zNear, zFar 파라미터가 어느 지점까지 보이는지를 확인 가능하게 한다.
     // // 종횡비 4:3, 세로화각 45도의 원근 투영
-    auto projection = glm::perspective(glm::radians(45.0f),(float)m_width / (float)m_height, 0.01f, 50.0f);
+    auto projection = Matrix::GetPerspective(glm::radians(45.0f),(float)m_width / (float)m_height, 0.01f, 50.0f);
 
-    glm::vec3 lightPos = m_light.position;
-    glm::vec3 lightDir = m_light.direction;
+    Vector3 lightPos = m_light.position;
+    Vector3 lightDir = m_light.direction;
     if (m_flashLightMode) {
         lightPos = m_cameraPos;
         lightDir = m_cameraFront;
     } else {
-        auto lightModelTransform = glm::translate(glm::mat4(1.0), m_light.position) *
-            glm::scale(glm::mat4(1.0), glm::vec3(0.1f));
-
+        Matrix lightModelTransform = Matrix();
+        Matrix scaleMatrix = Matrix(1.0f);
+        lightModelTransform.Translate(scaleMatrix, m_light.position.x, m_light.position.y, m_light.position.y);
+        scaleMatrix.Scale(scaleMatrix, 0.1f);
+        lightModelTransform = Matrix::Mul(lightModelTransform, scaleMatrix);
         m_simpleProgram->Use();
-        m_simpleProgram->SetUniform("color", glm::vec4(m_light.ambient + m_light.diffuse, 1.0f));
+        m_simpleProgram->SetUniform("color", Vector4(m_light.ambient.x + m_light.diffuse.x, m_light.ambient.y + m_light.diffuse.y, m_light.ambient.z + m_light.diffuse.z, 1.0f));
         m_simpleProgram->SetUniform("transform", projection * view * lightModelTransform);
     }
 
@@ -150,8 +164,9 @@ void Context::Render() {
     m_program->SetUniform("viewPos", m_cameraPos);
     m_program->SetUniform("light.position", lightPos);
     m_program->SetUniform("light.direction", lightDir);
-    m_program->SetUniform("light.cutoff", glm::vec2(
-        cosf(glm::radians(m_light.cutoff[0])), cosf(glm::radians(m_light.cutoff[0] + m_light.cutoff[1]))));
+    float val1 = cosf(glm::radians(m_light.cutoff.x));
+    float val2 = cosf(glm::radians(m_light.cutoff.x + m_light.cutoff.y));
+    m_program->SetUniform("light.cutoff", Vector2( val1, val2));
     m_program->SetUniform("light.attenuation", GetAttenuationCoeff(m_light.distance));
     m_program->SetUniform("light.ambient", m_light.ambient);
     m_program->SetUniform("light.diffuse", m_light.diffuse);
@@ -160,16 +175,15 @@ void Context::Render() {
     m_program->SetUniform("material.specular", 1);
     m_program->SetUniform("blinn", (m_blinn ? 1 : 0));
 
-    glm::vec3 modelPosition(0.0f, 0.0f, 0.0f);
-    glm::vec3 rotationAxis(0.0f, 1.0f, 0.0f);
+    Vector3 modelPosition(0.0f, 0.0f, 0.0f);
 
-    glm::mat4 modelTransform = glm::mat4(1.0f); // 초기 모델 변환 행렬
+    Matrix modelTransform = Matrix(1.0f);
 
     // 초기 위치로 이동 변환을 적용
-    modelTransform = glm::translate(modelTransform, modelPosition);
+    Matrix::Translate(modelTransform, modelPosition.x, modelPosition.y, modelPosition.z);
 
     if (m_animation)
-        modelTransform = glm::rotate(modelTransform, glm::radians((float)glfwGetTime() * 120.0f + 20.0f), rotationAxis);
+        Matrix::RotateY(modelTransform, glm::radians((float)glfwGetTime() * 120.0f + 20.0f));
     auto transform = projection * view * modelTransform;
     m_program->SetUniform("transform", transform);
     m_program->SetUniform("modelTransform", modelTransform);

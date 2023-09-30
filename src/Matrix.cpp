@@ -4,6 +4,10 @@ Matrix::Matrix(void) {
 	Matrix::Identity(*this);
 }
 
+Matrix::Matrix(const float val) {
+	Set(val, 0, 0, 0, 0, val, 0, 0, 0, 0, val, 0, 0, 0,0, val);	
+}
+
 
 Matrix::Matrix(const float copy[16]) {
 	Set(copy);
@@ -82,6 +86,21 @@ bool Matrix::Equals(const Matrix& other) const {
 	return true;
 }
 
+// float* Matrix::GetValue(Matrix& value) {
+// 	return &(value[0]);
+// }
+
+const float* Matrix::GetValue(const Matrix& value) {
+	static float result[16]; // 정적 배열로 메모리 할당
+
+    // value의 데이터를 복사
+    for (int i = 0; i < 16; ++i) {
+        result[i] = value[i];
+    }
+
+	return result;
+}
+
 Matrix Matrix::GetTransposed(void) const {
 	Matrix destination;
 	for (unsigned int x = 0; x < 4; x++) {
@@ -120,6 +139,14 @@ Matrix Matrix::Sub(const Matrix& a, const Matrix& b) {
 		destination.values[i] = a.values[i] - b.values[i];
 	}
 	return destination;
+}
+
+Vector4 Matrix::Mul(const Matrix& a, const Vector4& b) {
+	return Vector4(a[0] * b.x + a[4] * b.x + a[8] * b.x + a[12] * b.x,
+				a[1] * b.y + a[5] * b.y + a[9] * b.y + a[13] * b.y,
+				a[2] * b.z + a[6] * b.z + a[10] * b.z + a[14] * b.z,
+				a[3] * b.w + a[7] * b.w + a[11] * b.w + a[15] * b.w
+	);
 }
 
 Matrix Matrix::Mul(const Matrix& a, const Matrix& b) {
@@ -202,6 +229,24 @@ void Matrix::Scale(Matrix& matrix, float s)
     return Matrix::Scale(matrix, s, s, s);
 }
 
+
+Matrix Matrix::Scale(Matrix& matrix, Vector3& vec)
+{
+	matrix.values[0] *= vec.x;
+	matrix.values[4] *= vec.x;
+	matrix.values[8] *= vec.x;
+	matrix.values[12] *= vec.x;
+	matrix.values[1] *= vec.y;
+	matrix.values[5] *= vec.y;
+	matrix.values[9] *= vec.y;
+	matrix.values[13] *= vec.y;
+	matrix.values[2] *= vec.z;
+	matrix.values[6] *= vec.z;
+	matrix.values[10] *= vec.z;
+	matrix.values[14] *= vec.z;
+    return matrix;
+}
+
 void Matrix::Scale(Matrix& matrix, float x, float y, float z)
 {
 	matrix.values[0] *= x;
@@ -233,16 +278,36 @@ void Matrix::Translate(Matrix& matrix, float x, float y, float z) {
 	matrix.values[14] += matrix.values[15] * z;
 }
 
-Matrix Matrix::LookAt(Vector3& position, Vector3& target, Vector3& up) {
-	Vector3 eyeDirection = (target - position).GetNormalized();
-	Vector3 leftDirection = Vector3::Cross(up, eyeDirection).GetNormalized();
-	Vector3 upDirection = Vector3::Cross(eyeDirection, leftDirection).GetNormalized();
+Matrix Matrix::LookAt(Vector3& eye, Vector3& center, Vector3& up) {
+	
+	Vector3 zAxis = (eye - center).GetNormalized();
+    Vector3 xAxis = Vector3::Cross(up, zAxis).GetNormalized();
+    Vector3 yAxis = Vector3::Cross(zAxis, xAxis); // 카메라의 상단 방향
 
-	Matrix lookAt;
-	lookAt.SetColumn(0, leftDirection);
-	lookAt.SetColumn(1, upDirection);
-	lookAt.SetColumn(2, eyeDirection);
-	lookAt.SetColumn(3, position);
+    Matrix lookAt(1.0f); // 초기화된 단위 행렬
+
+	// 카메라의 변환 행렬 설정
+	lookAt[0] = xAxis.x;
+	lookAt[1] = yAxis.x;
+	lookAt[2] = zAxis.x;
+	lookAt[3] = 0.0f;
+
+	lookAt[4] = xAxis.y;
+	lookAt[5] = yAxis.y;
+	lookAt[6] = zAxis.y;
+	lookAt[7] = 0.0f;
+
+	lookAt[8] = xAxis.z;
+	lookAt[9] = yAxis.z;
+	lookAt[10] = zAxis.z;
+	lookAt[11] = 0.0f;
+
+	// 카메라의 이동 행렬 설정
+	lookAt[12] = -Vector3::Dot(xAxis, eye);
+	lookAt[13] = -Vector3::Dot(yAxis, eye);
+	lookAt[14] = -Vector3::Dot(zAxis, eye);
+	lookAt[15] = 1.0f;
+	
 	return lookAt;
 }
 

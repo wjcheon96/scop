@@ -26,15 +26,15 @@ private:
     void MakeNormal(uint32_t v1, uint32_t v2, uint32_t v3);
     void FaceToNormal(std::vector<std::string> value);
 
-    void MakeCorner(uint32_t val1, uint32_t val2, uint32_t val3, glm::vec3 center); 
+    void MakeCorner(uint32_t val1, uint32_t val2, uint32_t val3, Vector3 center); 
 
-    void ReadFace(std::vector<std::string> value, glm::vec3 center);
+    void ReadFace(std::vector<std::string> value, Vector3 center);
 
     void MakeCorner(std::string val);
 
     void SetMaterial();
 
-    void SetMinMax(glm::vec3 position);
+    void SetMinMax(Vector3 position);
 
     MeshPtr m_mesh;
     std::vector<MaterialPtr> m_materials;
@@ -43,12 +43,12 @@ private:
     std::vector<Vertex> vertices;
 
     std::string MtlPath;
-    std::vector<glm::vec3> v;
-    std::vector<glm::vec2> vt;
-    std::vector<glm::vec3> vn;
+    std::vector<Vector3> v;
+    std::vector<Vector2> vt;
+    std::vector<Vector3> vn;
     std::vector<std::vector<std::string>> f;
-    glm::vec3 min {0};
-    glm::vec3 max {0};
+    Vector3 min {0};
+    Vector3 max {0};
     int faceSize {0};
 
     int count {0};
