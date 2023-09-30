@@ -1,6 +1,8 @@
 #ifndef __COMMON_HPP__
 #define __COMMON_HPP__
 
+#define _USE_MATH_DEFINES
+
 #include <iostream>
 #include <memory>
 #include <string>
@@ -8,6 +10,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <spdlog/spdlog.h>
+#include <math.h>
 #include "Matrix.h"
 
 #include "Vector2.h"
