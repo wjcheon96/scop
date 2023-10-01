@@ -32,8 +32,6 @@
 
 scop
 
-.vscode
-
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
