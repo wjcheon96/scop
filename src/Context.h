@@ -25,7 +25,7 @@ class Context{
         bool Init();
 
         // 카메라 세팅
-        Vector3 m_cameraPos { Vector3(0.0f, 0.0f, 3.0f) };
+        Vector3 m_cameraPos { Vector3(0.0f, 0.0f, 10.0f) };
         // 바라보는 방향 세팅.
         Vector3 m_cameraFront { Vector3(0.0f, 0.0f, -1.0f) };
         // 카메라가 특정 지점을 바라보게 하는 법.
