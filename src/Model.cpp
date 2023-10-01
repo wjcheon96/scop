@@ -104,15 +104,15 @@ void Model::MakeCorner(uint32_t val1, uint32_t val2, uint32_t val3, Vector3 cent
 
     vert.position = v[val1 - 1] - center;
     vert.texCoord = (Vector2::Clamp(Vector2((vn[val1].x + 1.0f) / 2.0f, (vn[val1].y + 1.0f) / 2.0f), 0.0f, 255.0f)).GetNormalized();
-    vert.normal = (Vector3::Clamp(vn[val1], 0.0f, 255.0f)).GetNormalized();
+    vert.normal = vn[val1];
     vertices.push_back(vert);
     vert.position = v[val2 - 1] - center;
     vert.texCoord = (Vector2::Clamp(Vector2((vn[val2].x + 1.0f) / 2.0f, (vn[val2].y + 1.0f) / 2.0f), 0.0f, 255.0f)).GetNormalized();
-    vert.normal = (Vector3::Clamp(vn[val2], 0.0f, 255.0f)).GetNormalized();
+    vert.normal = vn[val2];
     vertices.push_back(vert);
     vert.position = v[val3 - 1] - center;
     vert.texCoord = (Vector2::Clamp(Vector2((vn[val3].x + 1.0f) / 2.0f, (vn[val3].y + 1.0f) / 2.0f), 0.0f, 255.0f)).GetNormalized();
-    vert.normal = (Vector3::Clamp(vn[val3], 0.0f, 255.0f)).GetNormalized();
+    vert.normal = vn[val3];
     vertices.push_back(vert);
 }
 
