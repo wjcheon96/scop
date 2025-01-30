@@ -35,10 +35,15 @@ add_executable(${PROJECT_NAME}
     src/Shader.cpp src/Shader.h
     src/Texture.cpp src/Texture.h
     src/VertexLayout.cpp src/VertexLayout.h
-    src/Vector2.cpp src/Vector2.h
-    src/Vector3.cpp src/Vector3.h
-    src/Vector4.cpp src/Vector4.h
-    src/Matrix.cpp src/Matrix.h
+
+    mathlib/Vector2.cpp mathlib/Vector2.h
+    mathlib/Vector3.cpp mathlib/Vector3.h
+    mathlib/Vector4.cpp mathlib/Vector4.h
+    mathlib/Common.cpp mathlib/Common.h
+    mathlib/Mat2x2.cpp mathlib/Mat2x2.h
+    mathlib/Mat3x3.cpp mathlib/Mat3x3.h
+    mathlib/Mat4x4.cpp mathlib/Mat4x4.h
+    mathlib/Value_ptr.cpp mathlib/Value_ptr.h
 )
 
 # ExternalProject 관련 명령어 셋 추가

@@ -42,11 +42,11 @@ void Mesh::Init(const std::vector<Vertex>& vertices, const std::vector<uint32_t>
         sizeof(Vertex), offsetof(Vertex, texCoord));
     m_materials[0]->diffuse = Texture::CreateFromImage(
         Image::CreateSingleColorImage(4, 4,
-            Vector4(0.5f, 0.1f, 0.1f, 1.0f)).get());
+            ft::vec4(0.5f, 0.1f, 0.1f, 1.0f)).get());
 
     m_materials[0]->specular = Texture::CreateFromImage(
         Image::CreateSingleColorImage(4, 4,
-            Vector4(0.5f, 0.1f, 0.1f, 1.0f)).get());
+            ft::vec4(0.5f, 0.1f, 0.1f, 1.0f)).get());
 }
 
 void Mesh::Draw(const Program* program, int idx) const {
@@ -64,35 +64,35 @@ void Mesh::Draw(const Program* program, int idx) const {
 
 MeshUPtr Mesh::CreateBox() {
     std::vector<Vertex> vertices = {
-        Vertex { Vector3(-0.5f, -0.5f, -0.5f), Vector3( 0.0f,  0.0f, -1.0f), Vector2(0.0f, 0.0f) },
-        Vertex { Vector3( 0.5f, -0.5f, -0.5f), Vector3( 0.0f,  0.0f, -1.0f), Vector2(1.0f, 0.0f) },
-        Vertex { Vector3( 0.5f,  0.5f, -0.5f), Vector3( 0.0f,  0.0f, -1.0f), Vector2(1.0f, 1.0f) },
-        Vertex { Vector3(-0.5f,  0.5f, -0.5f), Vector3( 0.0f,  0.0f, -1.0f), Vector2(0.0f, 1.0f) },
+        Vertex { ft::vec3(-0.5f, -0.5f, -0.5f), ft::vec3( 0.0f,  0.0f, -1.0f), ft::vec2(0.0f, 0.0f) },
+        Vertex { ft::vec3( 0.5f, -0.5f, -0.5f), ft::vec3( 0.0f,  0.0f, -1.0f), ft::vec2(1.0f, 0.0f) },
+        Vertex { ft::vec3( 0.5f,  0.5f, -0.5f), ft::vec3( 0.0f,  0.0f, -1.0f), ft::vec2(1.0f, 1.0f) },
+        Vertex { ft::vec3(-0.5f,  0.5f, -0.5f), ft::vec3( 0.0f,  0.0f, -1.0f), ft::vec2(0.0f, 1.0f) },
 
-        Vertex { Vector3(-0.5f, -0.5f,  0.5f), Vector3( 0.0f,  0.0f,  1.0f), Vector2(0.0f, 0.0f) },
-        Vertex { Vector3( 0.5f, -0.5f,  0.5f), Vector3( 0.0f,  0.0f,  1.0f), Vector2(1.0f, 0.0f) },
-        Vertex { Vector3( 0.5f,  0.5f,  0.5f), Vector3( 0.0f,  0.0f,  1.0f), Vector2(1.0f, 1.0f) },
-        Vertex { Vector3(-0.5f,  0.5f,  0.5f), Vector3( 0.0f,  0.0f,  1.0f), Vector2(0.0f, 1.0f) },
+        Vertex { ft::vec3(-0.5f, -0.5f,  0.5f), ft::vec3( 0.0f,  0.0f,  1.0f), ft::vec2(0.0f, 0.0f) },
+        Vertex { ft::vec3( 0.5f, -0.5f,  0.5f), ft::vec3( 0.0f,  0.0f,  1.0f), ft::vec2(1.0f, 0.0f) },
+        Vertex { ft::vec3( 0.5f,  0.5f,  0.5f), ft::vec3( 0.0f,  0.0f,  1.0f), ft::vec2(1.0f, 1.0f) },
+        Vertex { ft::vec3(-0.5f,  0.5f,  0.5f), ft::vec3( 0.0f,  0.0f,  1.0f), ft::vec2(0.0f, 1.0f) },
 
-        Vertex { Vector3(-0.5f,  0.5f,  0.5f), Vector3(-1.0f,  0.0f,  0.0f), Vector2(1.0f, 0.0f) },
-        Vertex { Vector3(-0.5f,  0.5f, -0.5f), Vector3(-1.0f,  0.0f,  0.0f), Vector2(1.0f, 1.0f) },
-        Vertex { Vector3(-0.5f, -0.5f, -0.5f), Vector3(-1.0f,  0.0f,  0.0f), Vector2(0.0f, 1.0f) },
-        Vertex { Vector3(-0.5f, -0.5f,  0.5f), Vector3(-1.0f,  0.0f,  0.0f), Vector2(0.0f, 0.0f) },
+        Vertex { ft::vec3(-0.5f,  0.5f,  0.5f), ft::vec3(-1.0f,  0.0f,  0.0f), ft::vec2(1.0f, 0.0f) },
+        Vertex { ft::vec3(-0.5f,  0.5f, -0.5f), ft::vec3(-1.0f,  0.0f,  0.0f), ft::vec2(1.0f, 1.0f) },
+        Vertex { ft::vec3(-0.5f, -0.5f, -0.5f), ft::vec3(-1.0f,  0.0f,  0.0f), ft::vec2(0.0f, 1.0f) },
+        Vertex { ft::vec3(-0.5f, -0.5f,  0.5f), ft::vec3(-1.0f,  0.0f,  0.0f), ft::vec2(0.0f, 0.0f) },
 
-        Vertex { Vector3( 0.5f,  0.5f,  0.5f), Vector3( 1.0f,  0.0f,  0.0f), Vector2(1.0f, 0.0f) },
-        Vertex { Vector3( 0.5f,  0.5f, -0.5f), Vector3( 1.0f,  0.0f,  0.0f), Vector2(1.0f, 1.0f) },
-        Vertex { Vector3( 0.5f, -0.5f, -0.5f), Vector3( 1.0f,  0.0f,  0.0f), Vector2(0.0f, 1.0f) },
-        Vertex { Vector3( 0.5f, -0.5f,  0.5f), Vector3( 1.0f,  0.0f,  0.0f), Vector2(0.0f, 0.0f) },
+        Vertex { ft::vec3( 0.5f,  0.5f,  0.5f), ft::vec3( 1.0f,  0.0f,  0.0f), ft::vec2(1.0f, 0.0f) },
+        Vertex { ft::vec3( 0.5f,  0.5f, -0.5f), ft::vec3( 1.0f,  0.0f,  0.0f), ft::vec2(1.0f, 1.0f) },
+        Vertex { ft::vec3( 0.5f, -0.5f, -0.5f), ft::vec3( 1.0f,  0.0f,  0.0f), ft::vec2(0.0f, 1.0f) },
+        Vertex { ft::vec3( 0.5f, -0.5f,  0.5f), ft::vec3( 1.0f,  0.0f,  0.0f), ft::vec2(0.0f, 0.0f) },
 
-        Vertex { Vector3(-0.5f, -0.5f, -0.5f), Vector3( 0.0f, -1.0f,  0.0f), Vector2(0.0f, 1.0f) },
-        Vertex { Vector3( 0.5f, -0.5f, -0.5f), Vector3( 0.0f, -1.0f,  0.0f), Vector2(1.0f, 1.0f) },
-        Vertex { Vector3( 0.5f, -0.5f,  0.5f), Vector3( 0.0f, -1.0f,  0.0f), Vector2(1.0f, 0.0f) },
-        Vertex { Vector3(-0.5f, -0.5f,  0.5f), Vector3( 0.0f, -1.0f,  0.0f), Vector2(0.0f, 0.0f) },
+        Vertex { ft::vec3(-0.5f, -0.5f, -0.5f), ft::vec3( 0.0f, -1.0f,  0.0f), ft::vec2(0.0f, 1.0f) },
+        Vertex { ft::vec3( 0.5f, -0.5f, -0.5f), ft::vec3( 0.0f, -1.0f,  0.0f), ft::vec2(1.0f, 1.0f) },
+        Vertex { ft::vec3( 0.5f, -0.5f,  0.5f), ft::vec3( 0.0f, -1.0f,  0.0f), ft::vec2(1.0f, 0.0f) },
+        Vertex { ft::vec3(-0.5f, -0.5f,  0.5f), ft::vec3( 0.0f, -1.0f,  0.0f), ft::vec2(0.0f, 0.0f) },
 
-        Vertex { Vector3(-0.5f,  0.5f, -0.5f), Vector3( 0.0f,  1.0f,  0.0f), Vector2(0.0f, 1.0f) },
-        Vertex { Vector3( 0.5f,  0.5f, -0.5f), Vector3( 0.0f,  1.0f,  0.0f), Vector2(1.0f, 1.0f) },
-        Vertex { Vector3( 0.5f,  0.5f,  0.5f), Vector3( 0.0f,  1.0f,  0.0f), Vector2(1.0f, 0.0f) },
-        Vertex { Vector3(-0.5f,  0.5f,  0.5f), Vector3( 0.0f,  1.0f,  0.0f), Vector2(0.0f, 0.0f) },
+        Vertex { ft::vec3(-0.5f,  0.5f, -0.5f), ft::vec3( 0.0f,  1.0f,  0.0f), ft::vec2(0.0f, 1.0f) },
+        Vertex { ft::vec3( 0.5f,  0.5f, -0.5f), ft::vec3( 0.0f,  1.0f,  0.0f), ft::vec2(1.0f, 1.0f) },
+        Vertex { ft::vec3( 0.5f,  0.5f,  0.5f), ft::vec3( 0.0f,  1.0f,  0.0f), ft::vec2(1.0f, 0.0f) },
+        Vertex { ft::vec3(-0.5f,  0.5f,  0.5f), ft::vec3( 0.0f,  1.0f,  0.0f), ft::vec2(0.0f, 0.0f) },
     };
 
     std::vector<uint32_t> indices = {

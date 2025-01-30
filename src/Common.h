@@ -11,14 +11,18 @@
 #include <GLFW/glfw3.h>
 #include <spdlog/spdlog.h>
 #include <math.h>
-#include "Matrix.h"
 
-#include "Vector2.h"
-#include "Vector3.h"
-#include "Vector4.h"
+#include "../mathlib/Common.h"
+#include "../mathlib/Mat2x2.h"
+#include "../mathlib/Mat3x3.h"
+#include "../mathlib/Mat4x4.h"
+#include "../mathlib/Value_ptr.h"
+#include "../mathlib/Vector2.h"
+#include "../mathlib/Vector3.h"
+#include "../mathlib/Vector4.h"
 
 std::optional<std::string> LoadTextFile(const std::string& filename);
-Vector3 GetAttenuationCoeff(float distance);
+ft::vec3 GetAttenuationCoeff(float distance);
 std::vector<std::pair<std::string, std::vector<std::string>>> tokenize(std::istringstream& text);
 
 float radians(float degrees);

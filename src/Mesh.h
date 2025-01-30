@@ -8,9 +8,9 @@
 #include "Program.h"
 
 struct Vertex {
-    Vector3 position;
-    Vector3 normal;
-    Vector2 texCoord;
+    ft::vec3 position;
+    ft::vec3 normal;
+    ft::vec2 texCoord;
 };
 
 CLASS_PTR(Material);

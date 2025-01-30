@@ -38,24 +38,24 @@ std::vector<std::pair<std::string, std::vector<std::string>>> tokenize(std::istr
     return token;
 }
 
-Vector3 GetAttenuationCoeff(float distance) {
-    const auto linear_coeff = Vector4(
+ft::vec3 GetAttenuationCoeff(float distance) {
+    const auto linear_coeff = ft::vec4(
         8.4523112e-05, 4.4712582e+00, -1.8516388e+00, 3.3955811e+01
     );
-    const auto quad_coeff = Vector4(
+    const auto quad_coeff = ft::vec4(
         -7.6103583e-04, 9.0120201e+00, -1.1618500e+01, 1.0000464e+02
     );
 
     float kc = 1.0f;
     float d = 1.0f / distance;
-    auto dvec = Vector4(1.0f, d, d*d, d*d*d);
-    float kl = Vector4::Dot(linear_coeff, dvec);
-    float kq = Vector4::Dot(quad_coeff, dvec);
+    auto dvec = ft::vec4(1.0f, d, d*d, d*d*d);
+    float kl = ft::dot(linear_coeff, dvec);
+    float kq = ft::dot(quad_coeff, dvec);
     
     float f1, f2;
     f1 = kl > 0.0f ? kl : 0.0f;
     f2 = kq * kq > 0.0f ? kq * kq : 0.0f;
-    return Vector3(kc, f1, f2);
+    return ft::vec3(kc, f1, f2);
 }
 
 float radians(float degrees) {

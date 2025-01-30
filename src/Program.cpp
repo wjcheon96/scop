@@ -58,23 +58,23 @@ void Program::SetUniform(const std::string& name, float value) const {
     glUniform1f(loc, value);
 }
 
-void Program::SetUniform(const std::string& name, const Vector2& value) const {
+void Program::SetUniform(const std::string& name, const ft::vec2& value) const {
     auto loc = glGetUniformLocation(m_program, name.c_str());
-    glUniform2fv(loc, 1, Vector2::GetValue(value));
+    glUniform2fv(loc, 1, ft::value_ptr(value));
 }
 
-void Program::SetUniform(const std::string& name, const Vector3& value) const {
+void Program::SetUniform(const std::string& name, const ft::vec3& value) const {
     auto loc = glGetUniformLocation(m_program, name.c_str());
-    glUniform3fv(loc, 1, Vector3::GetValue(value));
+    glUniform3fv(loc, 1, ft::value_ptr(value));
 }
 
-void Program::SetUniform(const std::string& name, const Vector4& value) const {
+void Program::SetUniform(const std::string& name, const ft::vec4& value) const {
     auto loc = glGetUniformLocation(m_program, name.c_str());
-    glUniform4fv(loc, 1, Vector4::GetValue(value));
+    glUniform4fv(loc, 1, ft::value_ptr(value));
 }
 
-void Program::SetUniform(const std::string& name, const Matrix& value) const {
+void Program::SetUniform(const std::string& name, const ft::mat4& value) const {
     auto loc = glGetUniformLocation(m_program, name.c_str());
     // matrix 값 세팅하는데 필요한 함수로, location, 몇개가 들어가는지, transpose여부, transform class가 저장하고 있는 floating point의 가장 첫번째 주소의 주소값을 리턴한다.
-    glUniformMatrix4fv(loc, 1, GL_FALSE, Matrix::GetValue(value));
+    glUniformMatrix4fv(loc, 1, GL_FALSE, ft::value_ptr(value));
 }

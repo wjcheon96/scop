@@ -13,7 +13,7 @@ ModelUPtr Model::Load(const std::string& filename) {
     return std::move(model);
 }
 
-void Model::SetMinMax(Vector3 position) {
+void Model::SetMinMax(ft::vec3 position) {
     position.x > max.x ? max.x = position.x : max.x;
     position.y > max.y ? max.y = position.y : max.y;
     position.z > max.z ? max.z = position.z : max.z;
@@ -42,11 +42,11 @@ void Model::SetMaterial() {
     if (mtl.empty()) {
         material->diffuse = Texture::CreateFromImage(
             Image::CreateSingleColorImage(4, 4,
-                Vector4(0.5f, 0.1f, 0.1f, 1.0f)).get());
+                ft::vec4(0.5f, 0.1f, 0.1f, 1.0f)).get());
 
         material->specular = Texture::CreateFromImage(
             Image::CreateSingleColorImage(4, 4,
-                Vector4(0.5f, 0.1f, 0.1f, 1.0f)).get());
+                ft::vec4(0.5f, 0.1f, 0.1f, 1.0f)).get());
     }
     else {
         for (int i = 0; i < mtl.size(); i++) {
@@ -54,11 +54,11 @@ void Model::SetMaterial() {
             std::vector<std::string> val = mtl[i].second;
             if (key == "Kd") {
                 material->diffuse = Texture::CreateFromImage(Image::CreateSingleColorImage(4, 4,
-                    Vector4(toFloat(val[0]), toFloat(val[1]), toFloat(val[2]), 1.0f)).get());
+                    ft::vec4(toFloat(val[0]), toFloat(val[1]), toFloat(val[2]), 1.0f)).get());
             }
             else if (key == "Ks") {
                 material->specular = Texture::CreateFromImage(Image::CreateSingleColorImage(4, 4,
-                    Vector4(toFloat(val[0]), toFloat(val[1]), toFloat(val[2]), 1.0f)).get());
+                    ft::vec4(toFloat(val[0]), toFloat(val[1]), toFloat(val[2]), 1.0f)).get());
             }
         }
     }
@@ -92,31 +92,33 @@ void Model::SetMaterial() {
 
 // make vertex normal
 void Model::MakeNormal(uint32_t v1, uint32_t v2, uint32_t v3) {
-    Vector3 normal = Vector3::Cross(v[v2 - 1] - v[v1 - 1], v[v3 - 1] - v[v1 - 1]).GetNormalized();    // face normal
-    vn[v1] = (normal + vn[v1]).GetNormalized();
-    vn[v2] = (normal + vn[v2]).GetNormalized();
-    vn[v3] = (normal + vn[v3]).GetNormalized();
+    ft::vec3 normal = ft::normalize(ft::cross(v[v2 - 1] - v[v1 - 1], v[v3 - 1] - v[v1 - 1]));    // face normal
+    vn[v1] = ft::normalize((normal + vn[v1]));
+    vn[v2] = ft::normalize((normal + vn[v2]));
+    vn[v3] = ft::normalize((normal + vn[v3]));
 }
 
-void Model::MakeCorner(uint32_t val1, uint32_t val2, uint32_t val3, Vector3 center) {
+void Model::MakeCorner(uint32_t val1, uint32_t val2, uint32_t val3, ft::vec3 center) {
     count += 6;
     Vertex vert;
 
     vert.position = v[val1 - 1] - center;
-    vert.texCoord = (Vector2::Clamp(Vector2((vn[val1].x + 1.0f) / 2.0f, (vn[val1].y + 1.0f) / 2.0f), 0.0f, 255.0f));
+    vert.texCoord = (ft::vec2(ft::getClamp((vn[val1].x + 1.0f) / 2.0f, 0.0f, 255.0f)), ft::getClamp((vn[val1].y + 1.0f) / 2.0f, 0.0f, 255.0f));
     vert.normal = vn[val1];
     vertices.push_back(vert);
     vert.position = v[val2 - 1] - center;
-    vert.texCoord = (Vector2::Clamp(Vector2((vn[val2].x + 1.0f) / 2.0f, (vn[val2].y + 1.0f) / 2.0f), 0.0f, 255.0f));
+    vert.texCoord = (ft::vec2(ft::getClamp((vn[val2].x + 1.0f) / 2.0f, 0.0f, 255.0f)), ft::getClamp((vn[val2].y + 1.0f) / 2.0f, 0.0f, 255.0f));
+
     vert.normal = vn[val2];
     vertices.push_back(vert);
     vert.position = v[val3 - 1] - center;
-    vert.texCoord = (Vector2::Clamp(Vector2((vn[val3].x + 1.0f) / 2.0f, (vn[val3].y + 1.0f) / 2.0f), 0.0f, 255.0f));
+    vert.texCoord = (ft::vec2(ft::getClamp((vn[val3].x + 1.0f) / 2.0f, 0.0f, 255.0f)), ft::getClamp((vn[val3].y + 1.0f) / 2.0f, 0.0f, 255.0f));
+
     vert.normal = vn[val3];
     vertices.push_back(vert);
 }
 
-void Model::ReadFace(std::vector<std::string> value, Vector3 center) {
+void Model::ReadFace(std::vector<std::string> value, ft::vec3 center) {
     int triangleCount = value.size() - 2;
     if (triangleCount == 2) {
         MakeCorner(toInt(value[0]), toInt(value[1]), toInt(value[2]), center);
@@ -143,8 +145,8 @@ void Model::TokenizeObj(std::istringstream& text) {
         std::istringstream lineStream(line);
         std::string key, word;
         GLfloat coord;
-        Vector3 position, normal;
-        Vector2 texCoord;
+        ft::vec3 position, normal;
+        ft::vec2 texCoord;
         if (lineStream >> key && key[0] != '#') {
             if (key == "mtllib") {
                 if (lineStream >> word) {
@@ -187,7 +189,7 @@ bool Model::LoadObj(const std::string& filename) {
         FaceToNormal(line);
     }
     
-    Vector3 center = Vector3(((max.x + min.x) / 2), ((max.y + min.y) / 2), ((max.z + min.z) / 2));
+    ft::vec3 center = ft::vec3(((max.x + min.x) / 2), ((max.y + min.y) / 2), ((max.z + min.z) / 2));
 
     for (std::vector line : f) {
         ReadFace(line, center);
